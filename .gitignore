@@ -1,0 +1,41 @@
+# ── Python ──────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.egg-info/
+.ruff_cache/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# ── uv / virtualenv (uv.lock は追跡する) ─────────────────
+.venv/
+**/.venv/
+
+# ── 生成物（再生成可能・巨大）: build/ は基本除外 ────────
+# ただし Pulsar2 ビルド設定とモデル構造ダンプは公開する
+build/*
+!build/pulsar_configs/
+!build/model_introspection.json
+
+# ── 大容量バイナリは保険で常に除外 ──────────────────────
+# （モデル重み / ONNX / axmodel / 音声 / calibration アーカイブ）
+*.onnx
+*.onnx.data
+*.axmodel
+*.safetensors
+*.pt
+*.pth
+*.ckpt
+*.wav
+*.tar
+*.tar.gz
+*.tgz
+
+# ── 外部ツール（リポジトリに混入した場合の保険）─────────
+pulsar2_pkg/
+ax_pulsar2_*.tar.gz
+
+# ── OS / editor ─────────────────────────────────────────
+.DS_Store
+*.swp
+.vscode/
+.idea/

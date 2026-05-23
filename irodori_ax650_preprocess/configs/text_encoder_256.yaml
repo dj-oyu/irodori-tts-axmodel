@@ -1,0 +1,13 @@
+# TextEncoder.forward(input_ids, mask) の実 I/O（v3 実測, FINDINGS.md 参照）
+#   input_ids [1, max_text_len] int64, mask [1, max_text_len] bool -> [1, max_text_len, 512]
+# v3 の max_text_len = 256（ckpt metadata, default_text_max_len）。
+# token id 入力なので int64。固定 shape, batch=1。
+inputs:
+  - name: input_ids
+    shape: [1, 256]
+    dtype: int64
+    kind: arange
+  - name: mask
+    shape: [1, 256]
+    dtype: bool
+    kind: ones

@@ -1,0 +1,19 @@
+{
+  "model_type": "ONNX",
+  "target_hardware": "AX650",
+  "npu_mode": "NPU3",
+  "onnx_opt": {
+    "enable_onnxsim": true
+  },
+  "quant": {
+    "calibration_method": "MinMax",
+    "input_configs": [
+      {
+        "tensor_name": "z",
+        "calibration_dataset": "/data/build/calib_dacvae_T32/z.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 16
+      }
+    ]
+  }
+}

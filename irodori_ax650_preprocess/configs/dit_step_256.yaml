@@ -1,0 +1,45 @@
+# DiT 1-step = TextToLatentRFDiT.forward_with_encoded_conditions の実 I/O（v3 実測）。
+#
+# 重要: このモジュールは kwargs 渡し + context_kv_cache（12層 x 4 tensor）を取るため、
+#       現行 prepare_ax650_export.py の flat/positional export では直接 export できない。
+#       固定 batch・固定 latent 長・KV cache を平坦化引数で受ける nn.Module ラッパが別途必要。
+#       （FINDINGS.md「export 設計上の含意」を参照）
+#
+# 下記 shape は設計判断を 2 つ固定した前提:
+#   - batch B = 1（CFG independent では実行時 B=3。NPU では batch=1 で 3 pass か、B=3 を 1 グラフ化）
+#   - 固定 latent 長 T = 256（duration 予測で可変。代表上限として 256 を採用＝要確定）
+#
+# 注: dtype: float16 は export 時のターゲット（module を .half() して出す）。
+#     runtime 実体は fp32/bf16（fp16 経路なし）。speaker_state の 2 は no_ref 時の値
+#     （= patched_ref_len 1 + masked-mean token 1）。実 ref 音声では ref 長で増える。
+# 主入力（KV cache を除く）:
+inputs:
+  - name: x_t            # ノイズ付き latent
+    shape: [1, 256, 32]  # [B, T, latent_dim]
+    dtype: float16
+    kind: randn
+  - name: t              # timestep
+    shape: [1]
+    dtype: float16
+    kind: ones
+  - name: text_state     # TextEncoder 出力
+    shape: [1, 256, 512] # [B, max_text_len, text_dim]
+    dtype: float16
+    kind: randn
+  - name: text_mask
+    shape: [1, 256]
+    dtype: bool
+    kind: ones
+  - name: speaker_state  # ReferenceLatentEncoder 出力（+ masked-mean token）
+    shape: [1, 2, 768]   # [B, speaker_tokens, speaker_dim]
+    dtype: float16
+    kind: randn
+  - name: speaker_mask
+    shape: [1, 2]
+    dtype: bool
+    kind: ones
+# context_kv_cache（ここでは shape のみ記録, 実 export はラッパで平坦化して渡す）:
+#   12 層分、各層 [k_text, v_text, k_spk, v_spk]
+#     k_text/v_text: [B, 256, 20, 64]   ([B, max_text_len, num_heads, head_dim])
+#     k_spk /v_spk : [B,   2, 20, 64]   ([B, speaker_tokens, num_heads, head_dim])
+#   caption_state / caption_mask = None（v3 は caption 非対応）

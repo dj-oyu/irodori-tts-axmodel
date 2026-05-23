@@ -1,0 +1,25 @@
+{
+  "model_type": "ONNX",
+  "target_hardware": "AX650",
+  "npu_mode": "NPU1",
+  "onnx_opt": {
+    "enable_onnxsim": true
+  },
+  "quant": {
+    "calibration_method": "MinMax",
+    "input_configs": [
+      {
+        "tensor_name": "input_ids",
+        "calibration_dataset": "/data/build/calib_textenc/input_ids.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 16
+      },
+      {
+        "tensor_name": "mask",
+        "calibration_dataset": "/data/build/calib_textenc/mask.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 16
+      }
+    ]
+  }
+}

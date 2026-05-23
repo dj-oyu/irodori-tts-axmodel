@@ -1,0 +1,51 @@
+{
+  "model_type": "ONNX",
+  "target_hardware": "AX650",
+  "npu_mode": "NPU1",
+  "onnx_opt": {
+    "enable_onnxsim": true
+  },
+  "quant": {
+    "calibration_method": "MinMax",
+    "input_configs": [
+      {
+        "tensor_name": "x_t",
+        "calibration_dataset": "/data/build/calib_b1/x_t.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "t",
+        "calibration_dataset": "/data/build/calib_b1/t.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "text_state",
+        "calibration_dataset": "/data/build/calib_b1/text_state.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "text_mask",
+        "calibration_dataset": "/data/build/calib_b1/text_mask.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "speaker_state",
+        "calibration_dataset": "/data/build/calib_b1/speaker_state.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "speaker_mask",
+        "calibration_dataset": "/data/build/calib_b1/speaker_mask.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      }
+    ],
+    "precision_analysis": true,
+    "precision_analysis_method": "PerLayer"
+  }
+}

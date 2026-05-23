@@ -1,0 +1,23 @@
+[project]
+name = "irodori-ax650-preprocess"
+version = "0.1.0"
+description = "Preprocess/export helpers for Irodori-TTS Lite/v3 to AX650/Pulsar workflows"
+requires-python = ">=3.10"
+dependencies = [
+  "torch>=2.2",
+  "onnx>=1.16",
+  "onnxruntime>=1.17",
+  "onnxsim>=0.4.36",
+  "onnxscript>=0.7",
+  "safetensors>=0.4.3",
+  "huggingface-hub>=0.23",
+  "numpy>=1.26",
+  "pyyaml>=6.0.1",
+  "rich>=13.7",
+]
+
+[project.scripts]
+irodori-ax650-prep = "scripts.prepare_ax650_export:main"
+
+[tool.uv]
+package = true
