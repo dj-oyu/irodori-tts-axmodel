@@ -408,3 +408,42 @@ overlap-add の前段として「tile が通る chunk T」を探索（`dacvae_T{
 3. W4A8 / W4A4 は Pulsar2 標準外＋品質リスクで当面見送り。
 
 > 訂正: 旧版で「INT8 ベースライン（W8A8）」と書いたが、transformer は W8A16 が正。
+
+---
+
+## 実機検証で判明: 出荷 axmodel(kv, W8A8) は数値的に壊れている → x86 で要再検証（2026-05-23）
+
+実機 AX8850 で初めて DiT axmodel の**数値正しさ**を確認したところ不合格だった。**ロード・shape・latency は正常だが出力が誤り。**
+
+### 症状（実機, 単一ステップ）
+- 同一入力 `(x_t, t=0.8, cond KV cache, masks)` を **torch fp32 `forward_with_encoded_conditions(context_kv_cache=...)`** と
+  **`axmodel_kv_b1`** に与えて直接比較 → **cosine = 0.16**（torch v_pred std 0.93 / npu 0.62）。
+- レイアウト仮説（転置・reshape `(1,32,119)`・seq/latent 逆順 計6種）すべて ≒0 → **並び替えではない**。
+- W8A8 の許容（通常 cosine ~0.99）に程遠い → 量子化の劣化ではなく **ビルドが誤っている**。
+- torch fp32 サンプリング → 同じ onnx DACVAE で復号すると**明瞭な音声**が出る（CFG有り）。
+  → 条件付け・CFG・`build_context_kv_cache`・DACVAE 経路はすべて正しく、**壊れているのは NPU DiT のみ**。
+
+### 原因の所在（未確定。x86 で切り分け）
+- 出荷した Option A (kv) axmodel は `pulsar_configs/kv_b1_min.json`（**`precision_analysis: false`**）でビルドされ、
+  **数値検証が一度も行われていなかった**（`b1_precision.json` は Option B 版用で別物）。
+- 校正データ自体は `dump_calibration.py` の実 activation キャプチャで適正。
+- 疑い: ① W8A8 が DiT の AdaLN/timestep ダイナミクスを潰した（本 FINDINGS の「DiT は W8A16 が正」と整合）、
+  ② `transformer_opt_level=0`、③ **Pulsar2 6.0 でコンパイル vs 実機 engine 2.12.0s の版不一致が数値実行に影響**（ロードは red herring と判定済だが数値は未検証）。
+
+### x86 単独でできる検証（NPU 実機不要）
+1. **`pulsar2 run`（x86 シミュレータ）** で `compiled.axmodel` を回し、`onnxruntime` の fp32 ONNX 出力 / torch と cosine 比較。
+   - sim も cosine 低い → **Pulsar2 ビルド/量子化のバグ**（→ 下記再ビルド）。
+   - sim は cosine 高い のに実機が低い → **engine 版不一致が真因**（実機 engine 更新 or 実機版に合わせて再build）。
+2. **`precision_analysis: true` で Option A(kv) を再ビルド**（`kv_b1_min.json` に追加）→ 層ごとの float vs 量子化 cosine を取得し崩れる層を特定。
+3. 直し方の候補（本 FINDINGS の推奨順に従う）: **W8A16**（act16bit で AdaLN/embed を保つ）、必要なら norm/embed/AdaLN を
+   `layer_configs` で高精度に残す mixed precision、`transformer_opt_level≥1`。**per-step cosine ≥0.99 を確認してから配布**。
+   `axmodel_textenc` も未検証なので同様に確認。
+
+### 検証ベクトル（実機側 `e2e_demo/` で生成済。x86 へ持ち出すと sim==実機 / sim==torch が一発で分かる）
+- `diag_step_torch.py` が出す `step_ref.npz`（`x_t`, `t`, `v_torch`=fp32正解）
+- 実機 axmodel の実出力 `v_npu.npy`（cosine 0.16 のもの）
+- `a_build_cond.py` が出す cond KV + masks（`e2e_cond.npz`）
+- 比較用 ONNX `dit_step_kv_b1_fp32.onnx`(+`.onnx.data`) と calib は x86 ビルド環境に既にあるはず。
+
+> 補足: 実機側の最小 end-to-end 検証コードは `e2e_demo/`（A=torch 条件付け / B=NPU Euler+CFG / C=onnx DACVAE）。
+> torch DiT 経路なら実機でも音声は出る（A55 CPU で低速）。NPU DiT を直すのが本筋。
