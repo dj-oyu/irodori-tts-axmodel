@@ -309,3 +309,14 @@ long(T=201) dose-response（FC入力 U16 化率 vs 品質）:
   と非FC U8 活性化(Mul/Add)由来。**activation を U16 にしても重みが S8 なのが PTQ の天井**。
 - → 長文の完全透明は PTQ では頭打ち。さらに上は **QAT/蒸留**（重み込みで学習）か CPU 据置。
   進捗: 長文は plain「破綻」→ cosU16「muffled+声質低下」→ true-A16「muffled解消＋軽いbubbling」と単調改善。
+
+## AdaRound（task12）: 本ホスト/モデルでは不調 → PTQ 天井確定（2026-05-25）
+S8 重み量子化の床（long の bubbling）を AdaRound で押そうとしたが2連敗:
+- long(T=201)+true-A16+AdaRound, calib32: **~4h で OOM**（rss 8.9GB > 15GBホスト枠）。
+- medB(T=110)+true-A16+AdaRound, calib16: **~2h で NaN scale**（`v_pred_DequantizeLinear x_scale=nan`）。
+  calib16 が少なすぎて scale 統計が退化したのが主因と推定。
+- 教訓: AdaRound はメモリ大・遅い・calib に敏感。本15GBホストでは long は OOM、calib削ると NaN。
+  calib32 で medB 再試行の余地はあるが（OOM 危険）、得られる bubbling 改善は小さい見込み。
+- **結論**: PTQ の天井（S8 FC 重み）は本環境では AdaRound で越えられない。
+  長文の完全品質が要るなら **QAT/蒸留**（重み込み学習）か **長文 fp32-CPU** 据置。
+  現 true-A16（mel 2.73, muffling解消＋軽bubbling）が PTQ 実用上限。
