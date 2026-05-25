@@ -1,0 +1,368 @@
+{
+  "model_type": "ONNX",
+  "target_hardware": "AX650",
+  "npu_mode": "NPU1",
+  "onnx_opt": {
+    "enable_onnxsim": true
+  },
+  "quant": {
+    "calibration_method": "MinMax",
+    "input_configs": [
+      {
+        "tensor_name": "x_t",
+        "calibration_dataset": "/data/build/calib_kv_b1/x_t.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "t",
+        "calibration_dataset": "/data/build/calib_kv_b1/t.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "text_mask",
+        "calibration_dataset": "/data/build/calib_kv_b1/text_mask.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "speaker_mask",
+        "calibration_dataset": "/data/build/calib_kv_b1/speaker_mask.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "k_text_0",
+        "calibration_dataset": "/data/build/calib_kv_b1/k_text_0.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "v_text_0",
+        "calibration_dataset": "/data/build/calib_kv_b1/v_text_0.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "k_spk_0",
+        "calibration_dataset": "/data/build/calib_kv_b1/k_spk_0.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "v_spk_0",
+        "calibration_dataset": "/data/build/calib_kv_b1/v_spk_0.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "k_text_1",
+        "calibration_dataset": "/data/build/calib_kv_b1/k_text_1.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "v_text_1",
+        "calibration_dataset": "/data/build/calib_kv_b1/v_text_1.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "k_spk_1",
+        "calibration_dataset": "/data/build/calib_kv_b1/k_spk_1.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "v_spk_1",
+        "calibration_dataset": "/data/build/calib_kv_b1/v_spk_1.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "k_text_2",
+        "calibration_dataset": "/data/build/calib_kv_b1/k_text_2.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "v_text_2",
+        "calibration_dataset": "/data/build/calib_kv_b1/v_text_2.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "k_spk_2",
+        "calibration_dataset": "/data/build/calib_kv_b1/k_spk_2.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "v_spk_2",
+        "calibration_dataset": "/data/build/calib_kv_b1/v_spk_2.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "k_text_3",
+        "calibration_dataset": "/data/build/calib_kv_b1/k_text_3.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "v_text_3",
+        "calibration_dataset": "/data/build/calib_kv_b1/v_text_3.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "k_spk_3",
+        "calibration_dataset": "/data/build/calib_kv_b1/k_spk_3.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "v_spk_3",
+        "calibration_dataset": "/data/build/calib_kv_b1/v_spk_3.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "k_text_4",
+        "calibration_dataset": "/data/build/calib_kv_b1/k_text_4.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "v_text_4",
+        "calibration_dataset": "/data/build/calib_kv_b1/v_text_4.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "k_spk_4",
+        "calibration_dataset": "/data/build/calib_kv_b1/k_spk_4.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "v_spk_4",
+        "calibration_dataset": "/data/build/calib_kv_b1/v_spk_4.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "k_text_5",
+        "calibration_dataset": "/data/build/calib_kv_b1/k_text_5.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "v_text_5",
+        "calibration_dataset": "/data/build/calib_kv_b1/v_text_5.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "k_spk_5",
+        "calibration_dataset": "/data/build/calib_kv_b1/k_spk_5.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "v_spk_5",
+        "calibration_dataset": "/data/build/calib_kv_b1/v_spk_5.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "k_text_6",
+        "calibration_dataset": "/data/build/calib_kv_b1/k_text_6.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "v_text_6",
+        "calibration_dataset": "/data/build/calib_kv_b1/v_text_6.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "k_spk_6",
+        "calibration_dataset": "/data/build/calib_kv_b1/k_spk_6.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "v_spk_6",
+        "calibration_dataset": "/data/build/calib_kv_b1/v_spk_6.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "k_text_7",
+        "calibration_dataset": "/data/build/calib_kv_b1/k_text_7.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "v_text_7",
+        "calibration_dataset": "/data/build/calib_kv_b1/v_text_7.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "k_spk_7",
+        "calibration_dataset": "/data/build/calib_kv_b1/k_spk_7.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "v_spk_7",
+        "calibration_dataset": "/data/build/calib_kv_b1/v_spk_7.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "k_text_8",
+        "calibration_dataset": "/data/build/calib_kv_b1/k_text_8.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "v_text_8",
+        "calibration_dataset": "/data/build/calib_kv_b1/v_text_8.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "k_spk_8",
+        "calibration_dataset": "/data/build/calib_kv_b1/k_spk_8.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "v_spk_8",
+        "calibration_dataset": "/data/build/calib_kv_b1/v_spk_8.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "k_text_9",
+        "calibration_dataset": "/data/build/calib_kv_b1/k_text_9.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "v_text_9",
+        "calibration_dataset": "/data/build/calib_kv_b1/v_text_9.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "k_spk_9",
+        "calibration_dataset": "/data/build/calib_kv_b1/k_spk_9.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "v_spk_9",
+        "calibration_dataset": "/data/build/calib_kv_b1/v_spk_9.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "k_text_10",
+        "calibration_dataset": "/data/build/calib_kv_b1/k_text_10.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "v_text_10",
+        "calibration_dataset": "/data/build/calib_kv_b1/v_text_10.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "k_spk_10",
+        "calibration_dataset": "/data/build/calib_kv_b1/k_spk_10.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "v_spk_10",
+        "calibration_dataset": "/data/build/calib_kv_b1/v_spk_10.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "k_text_11",
+        "calibration_dataset": "/data/build/calib_kv_b1/k_text_11.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "v_text_11",
+        "calibration_dataset": "/data/build/calib_kv_b1/v_text_11.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "k_spk_11",
+        "calibration_dataset": "/data/build/calib_kv_b1/k_spk_11.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "v_spk_11",
+        "calibration_dataset": "/data/build/calib_kv_b1/v_spk_11.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      }
+    ],
+    "layer_configs": [
+      {
+        "op_types": [
+          "MatMul",
+          "Gemm",
+          "Add",
+          "Mul",
+          "Sub",
+          "Div",
+          "Softmax",
+          "Sigmoid",
+          "Tanh",
+          "ReduceMean",
+          "Sqrt",
+          "Pow",
+          "Erf",
+          "Concat",
+          "Gather",
+          "Transpose",
+          "Reshape",
+          "Cos",
+          "Sin",
+          "Slice",
+          "Split",
+          "Where",
+          "Cast",
+          "Neg",
+          "Sub"
+        ],
+        "data_type": "S16",
+        "weight_data_type": "S8"
+      },
+      {
+        "layer_names": [
+          "node_cos"
+        ],
+        "data_type": "U16"
+      }
+    ],
+    "precision_analysis": true,
+    "precision_analysis_method": "EndToEnd",
+    "precision_analysis_mode": "NPUBackend",
+    "device": "cuda:0"
+  }
+}

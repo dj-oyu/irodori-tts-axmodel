@@ -1,0 +1,38 @@
+{
+  "model_type": "ONNX",
+  "target_hardware": "AX650",
+  "npu_mode": "NPU3",
+  "onnx_opt": {
+    "enable_onnxsim": true
+  },
+  "quant": {
+    "calibration_method": "MinMax",
+    "input_configs": [
+      {
+        "tensor_name": "z",
+        "calibration_dataset": "/data/build/calib_dacvae/z.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      }
+    ],
+    "precision_analysis": true,
+    "precision_analysis_method": "EndToEnd",
+    "precision_analysis_mode": "NPUBackend",
+    "layer_configs": [
+      {
+        "op_types": [
+          "Conv",
+          "ConvTranspose",
+          "Mul",
+          "Add",
+          "Sub",
+          "Cos",
+          "Tanh",
+          "Div"
+        ],
+        "data_type": "S16",
+        "weight_data_type": "S8"
+      }
+    ]
+  }
+}

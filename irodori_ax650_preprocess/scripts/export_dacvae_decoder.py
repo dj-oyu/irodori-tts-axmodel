@@ -27,9 +27,10 @@ from pathlib import Path
 import numpy as np
 import torch
 import torch.nn as nn
-import torch.nn.utils.parametrize as parametrize
 
 from irodori_tts.codec import DACVAECodec
+
+from dacvae_export_patch import apply_snake_cos_patch, fold_weight_norm_all
 
 
 class DecoderWrapper(nn.Module):
@@ -41,16 +42,6 @@ class DecoderWrapper(nn.Module):
         return self.model.decode(z)
 
 
-def fold_weight_norm(m: nn.Module) -> int:
-    n = 0
-    for _, mod in m.named_modules():
-        ph = getattr(mod, "parametrizations", None)
-        if ph is not None and "weight" in ph:
-            parametrize.remove_parametrizations(mod, "weight", leave_parametrized=True)
-            n += 1
-    return n
-
-
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--codec-repo", default="Aratako/Semantic-DACVAE-Japanese-32dim")
@@ -58,14 +49,23 @@ def main() -> None:
     ap.add_argument("--latent-len", type=int, default=119)
     ap.add_argument("--latent-dim", type=int, default=32)
     ap.add_argument("--opset", type=int, default=17)
+    ap.add_argument("--snake-cos", action=argparse.BooleanOptionalAction, default=True,
+                    help="Snake を cos 恒等式に書き換えて export（Pulsar2 NPU 化に必須）。"
+                         "--no-snake-cos で素の Snake（onnxruntime 検証用, NPU build は不可）。")
     args = ap.parse_args()
+
+    if args.snake_cos:
+        apply_snake_cos_patch()
+        print("[patch] Snake1d -> cos identity (1-cos(2ax))/2  [NPU-buildable]")
+    else:
+        print("[patch] Snake unchanged (plain sin^2; NPU build will fail on Snake tiler)")
 
     codec = DACVAECodec.load(
         repo_id=args.codec_repo, device="cpu", dtype=torch.float32,
         deterministic_encode=True, deterministic_decode=True,
     )
     m = codec.model.eval()
-    folded = fold_weight_norm(m)
+    folded = fold_weight_norm_all(m)
     print(f"[fold] removed weight_norm from {folded} modules")
 
     wrapper = DecoderWrapper(m).eval()
