@@ -15,6 +15,8 @@ export 時だけ、数値的に等価な実数値（cos/sin）実装へ monkeypa
 
 from __future__ import annotations
 
+import os
+
 import torch
 import torch.nn.functional as F
 
@@ -33,8 +35,13 @@ def _sdpa_additive_mask(query, key, value, attn_mask=None, dropout_p=0.0,
     → Add のみに分解され IsNaN/Where が消える。
     """
     if attn_mask is not None and attn_mask.dtype == torch.bool:
-        neg = torch.finfo(query.dtype).min
-        attn_mask = (~attn_mask).to(query.dtype) * neg  # 0 / finfo.min の additive bias
+        # 既定は finfo.min（数値的に完全マスク）。ただし PTQ では finfo.min(-3.4e38) が
+        # SmoothQuant/MSE 等の activation 統計を汚染し量子化が壊れる（実測 0.89→0.35）。
+        # IRODORI_MASK_NEG で穏当な負値(-1e4 等)に差し替え可能。-1e4 でも fp32 では
+        # exp(score-1e4)→0 で完全マスクのまま＝出力は数値等価、量子化レンジだけ健全化。
+        _env = os.environ.get("IRODORI_MASK_NEG")
+        neg = float(_env) if _env else torch.finfo(query.dtype).min
+        attn_mask = (~attn_mask).to(query.dtype) * neg  # 0 / neg の additive bias
     kw = {}
     if scale is not None:
         kw["scale"] = scale

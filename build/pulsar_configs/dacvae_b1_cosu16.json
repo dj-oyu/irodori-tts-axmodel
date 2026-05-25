@@ -1,0 +1,58 @@
+{
+  "model_type": "ONNX",
+  "target_hardware": "AX650",
+  "npu_mode": "NPU3",
+  "onnx_opt": {
+    "enable_onnxsim": true
+  },
+  "quant": {
+    "calibration_method": "MinMax",
+    "input_configs": [
+      {
+        "tensor_name": "z",
+        "calibration_dataset": "/data/build/calib_dacvae/z.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      }
+    ],
+    "precision_analysis": false,
+    "precision_analysis_method": "EndToEnd",
+    "precision_analysis_mode": "NPUBackend",
+    "layer_configs": [
+      {
+        "layer_names": [
+          "node_cos",
+          "node_cos_1",
+          "node_cos_2",
+          "node_cos_3",
+          "node_cos_4",
+          "node_cos_5",
+          "node_cos_6",
+          "node_cos_7",
+          "node_cos_8",
+          "node_cos_9",
+          "node_cos_10",
+          "node_cos_11",
+          "node_cos_12",
+          "node_cos_13",
+          "node_cos_14",
+          "node_cos_15",
+          "node_cos_16",
+          "node_cos_17",
+          "node_cos_18",
+          "node_cos_19",
+          "node_cos_20",
+          "node_cos_21",
+          "node_cos_22",
+          "node_cos_23",
+          "node_cos_24",
+          "node_cos_25",
+          "node_cos_26",
+          "node_cos_27",
+          "node_cos_28"
+        ],
+        "data_type": "U16"
+      }
+    ]
+  }
+}
