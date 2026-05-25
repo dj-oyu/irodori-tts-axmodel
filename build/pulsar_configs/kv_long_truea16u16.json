@@ -1,0 +1,563 @@
+{
+  "model_type": "ONNX",
+  "target_hardware": "AX650",
+  "npu_mode": "NPU1",
+  "onnx_opt": {
+    "enable_onnxsim": true
+  },
+  "quant": {
+    "calibration_method": "MinMax",
+    "input_configs": [
+      {
+        "tensor_name": "x_t",
+        "calibration_dataset": "/data/build/calib_kv_long/x_t.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "t",
+        "calibration_dataset": "/data/build/calib_kv_long/t.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "text_mask",
+        "calibration_dataset": "/data/build/calib_kv_long/text_mask.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "speaker_mask",
+        "calibration_dataset": "/data/build/calib_kv_long/speaker_mask.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "k_text_0",
+        "calibration_dataset": "/data/build/calib_kv_long/k_text_0.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "v_text_0",
+        "calibration_dataset": "/data/build/calib_kv_long/v_text_0.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "k_spk_0",
+        "calibration_dataset": "/data/build/calib_kv_long/k_spk_0.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "v_spk_0",
+        "calibration_dataset": "/data/build/calib_kv_long/v_spk_0.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "k_text_1",
+        "calibration_dataset": "/data/build/calib_kv_long/k_text_1.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "v_text_1",
+        "calibration_dataset": "/data/build/calib_kv_long/v_text_1.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "k_spk_1",
+        "calibration_dataset": "/data/build/calib_kv_long/k_spk_1.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "v_spk_1",
+        "calibration_dataset": "/data/build/calib_kv_long/v_spk_1.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "k_text_2",
+        "calibration_dataset": "/data/build/calib_kv_long/k_text_2.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "v_text_2",
+        "calibration_dataset": "/data/build/calib_kv_long/v_text_2.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "k_spk_2",
+        "calibration_dataset": "/data/build/calib_kv_long/k_spk_2.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "v_spk_2",
+        "calibration_dataset": "/data/build/calib_kv_long/v_spk_2.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "k_text_3",
+        "calibration_dataset": "/data/build/calib_kv_long/k_text_3.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "v_text_3",
+        "calibration_dataset": "/data/build/calib_kv_long/v_text_3.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "k_spk_3",
+        "calibration_dataset": "/data/build/calib_kv_long/k_spk_3.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "v_spk_3",
+        "calibration_dataset": "/data/build/calib_kv_long/v_spk_3.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "k_text_4",
+        "calibration_dataset": "/data/build/calib_kv_long/k_text_4.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "v_text_4",
+        "calibration_dataset": "/data/build/calib_kv_long/v_text_4.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "k_spk_4",
+        "calibration_dataset": "/data/build/calib_kv_long/k_spk_4.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "v_spk_4",
+        "calibration_dataset": "/data/build/calib_kv_long/v_spk_4.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "k_text_5",
+        "calibration_dataset": "/data/build/calib_kv_long/k_text_5.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "v_text_5",
+        "calibration_dataset": "/data/build/calib_kv_long/v_text_5.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "k_spk_5",
+        "calibration_dataset": "/data/build/calib_kv_long/k_spk_5.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "v_spk_5",
+        "calibration_dataset": "/data/build/calib_kv_long/v_spk_5.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "k_text_6",
+        "calibration_dataset": "/data/build/calib_kv_long/k_text_6.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "v_text_6",
+        "calibration_dataset": "/data/build/calib_kv_long/v_text_6.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "k_spk_6",
+        "calibration_dataset": "/data/build/calib_kv_long/k_spk_6.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "v_spk_6",
+        "calibration_dataset": "/data/build/calib_kv_long/v_spk_6.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "k_text_7",
+        "calibration_dataset": "/data/build/calib_kv_long/k_text_7.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "v_text_7",
+        "calibration_dataset": "/data/build/calib_kv_long/v_text_7.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "k_spk_7",
+        "calibration_dataset": "/data/build/calib_kv_long/k_spk_7.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "v_spk_7",
+        "calibration_dataset": "/data/build/calib_kv_long/v_spk_7.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "k_text_8",
+        "calibration_dataset": "/data/build/calib_kv_long/k_text_8.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "v_text_8",
+        "calibration_dataset": "/data/build/calib_kv_long/v_text_8.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "k_spk_8",
+        "calibration_dataset": "/data/build/calib_kv_long/k_spk_8.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "v_spk_8",
+        "calibration_dataset": "/data/build/calib_kv_long/v_spk_8.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "k_text_9",
+        "calibration_dataset": "/data/build/calib_kv_long/k_text_9.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "v_text_9",
+        "calibration_dataset": "/data/build/calib_kv_long/v_text_9.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "k_spk_9",
+        "calibration_dataset": "/data/build/calib_kv_long/k_spk_9.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "v_spk_9",
+        "calibration_dataset": "/data/build/calib_kv_long/v_spk_9.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "k_text_10",
+        "calibration_dataset": "/data/build/calib_kv_long/k_text_10.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "v_text_10",
+        "calibration_dataset": "/data/build/calib_kv_long/v_text_10.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "k_spk_10",
+        "calibration_dataset": "/data/build/calib_kv_long/k_spk_10.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "v_spk_10",
+        "calibration_dataset": "/data/build/calib_kv_long/v_spk_10.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "k_text_11",
+        "calibration_dataset": "/data/build/calib_kv_long/k_text_11.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "v_text_11",
+        "calibration_dataset": "/data/build/calib_kv_long/v_text_11.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "k_spk_11",
+        "calibration_dataset": "/data/build/calib_kv_long/k_spk_11.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "v_spk_11",
+        "calibration_dataset": "/data/build/calib_kv_long/v_spk_11.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      }
+    ],
+    "layer_configs": [
+      {
+        "op_types": [
+          "MatMul",
+          "Gemm",
+          "Add",
+          "Mul",
+          "Sub",
+          "Div",
+          "Softmax",
+          "Sigmoid",
+          "Tanh",
+          "ReduceMean",
+          "Sqrt",
+          "Pow",
+          "Erf",
+          "Concat",
+          "Gather",
+          "Transpose",
+          "Reshape",
+          "Cos",
+          "Sin",
+          "Slice",
+          "Split",
+          "Where",
+          "Cast",
+          "Neg",
+          "Sub"
+        ],
+        "data_type": "S16",
+        "weight_data_type": "S8"
+      },
+      {
+        "layer_names": [
+          "node_cos"
+        ],
+        "data_type": "U16"
+      },
+      {
+        "layer_names": [
+          "node_cat_5",
+          "node_Unsqueeze_2213",
+          "node_bitwise_not",
+          "node_mul_3",
+          "node_linear",
+          "node_linear_1",
+          "op_4:onnx.Silu",
+          "op_7:onnx.Silu",
+          "op_9:onnx.Silu",
+          "op_141:onnx.FullyConnected",
+          "op_57:onnx.FullyConnected",
+          "op_127:onnx.FullyConnected",
+          "op_138:onnx.FullyConnected",
+          "op_145:onnx.FullyConnected",
+          "op_153:onnx.FullyConnected",
+          "op_160:onnx.FullyConnected",
+          "op_168:onnx.FullyConnected",
+          "op_175:onnx.FullyConnected",
+          "op_183:onnx.FullyConnected",
+          "op_22:onnx.FullyConnected",
+          "op_31:onnx.FullyConnected",
+          "op_38:onnx.FullyConnected",
+          "op_47:onnx.FullyConnected",
+          "op_54:onnx.FullyConnected",
+          "op_63:onnx.FullyConnected",
+          "op_69:onnx.FullyConnected",
+          "op_78:onnx.FullyConnected",
+          "op_84:onnx.FullyConnected",
+          "op_93:onnx.FullyConnected",
+          "op_99:onnx.FullyConnected",
+          "op_108:onnx.FullyConnected",
+          "op_115:onnx.FullyConnected",
+          "op_124:onnx.FullyConnected",
+          "op_156:onnx.FullyConnected",
+          "op_72:onnx.FullyConnected",
+          "op_131:onnx.FullyConnected",
+          "op_139:onnx.FullyConnected",
+          "op_146:onnx.FullyConnected",
+          "op_154:onnx.FullyConnected",
+          "op_161:onnx.FullyConnected",
+          "op_169:onnx.FullyConnected",
+          "op_176:onnx.FullyConnected",
+          "op_184:onnx.FullyConnected",
+          "op_23:onnx.FullyConnected",
+          "op_32:onnx.FullyConnected",
+          "op_39:onnx.FullyConnected",
+          "op_48:onnx.FullyConnected",
+          "op_55:onnx.FullyConnected",
+          "op_64:onnx.FullyConnected",
+          "op_70:onnx.FullyConnected",
+          "op_79:onnx.FullyConnected",
+          "op_85:onnx.FullyConnected",
+          "op_94:onnx.FullyConnected",
+          "op_100:onnx.FullyConnected",
+          "op_109:onnx.FullyConnected",
+          "op_116:onnx.FullyConnected",
+          "op_125:onnx.FullyConnected",
+          "op_171:onnx.FullyConnected",
+          "op_87:onnx.FullyConnected",
+          "op_132:onnx.FullyConnected",
+          "op_140:onnx.FullyConnected",
+          "op_147:onnx.FullyConnected",
+          "op_155:onnx.FullyConnected",
+          "op_162:onnx.FullyConnected",
+          "op_170:onnx.FullyConnected",
+          "op_177:onnx.FullyConnected",
+          "op_185:onnx.FullyConnected",
+          "op_24:onnx.FullyConnected",
+          "op_33:onnx.FullyConnected",
+          "op_40:onnx.FullyConnected",
+          "op_49:onnx.FullyConnected",
+          "op_56:onnx.FullyConnected",
+          "op_65:onnx.FullyConnected",
+          "op_71:onnx.FullyConnected",
+          "op_80:onnx.FullyConnected",
+          "op_86:onnx.FullyConnected",
+          "op_95:onnx.FullyConnected",
+          "op_101:onnx.FullyConnected",
+          "op_110:onnx.FullyConnected",
+          "op_117:onnx.FullyConnected",
+          "op_126:onnx.FullyConnected",
+          "node_add_5",
+          "node_mul_5",
+          "node_mul_7",
+          "node_mul_18",
+          "node_mul_20",
+          "node_add_16",
+          "op_102:onnx.FullyConnected",
+          "node_mul_22",
+          "node_mul_24",
+          "node_add_23",
+          "node_mul_26",
+          "node_mul_28",
+          "node_mul_39",
+          "node_mul_41",
+          "node_add_34",
+          "op_142:onnx.FullyConnected",
+          "node_mul_43",
+          "node_mul_45",
+          "node_add_41",
+          "node_mul_47",
+          "node_mul_49",
+          "node_mul_60",
+          "node_mul_62",
+          "node_add_52",
+          "op_157:onnx.FullyConnected",
+          "node_mul_64",
+          "node_mul_66",
+          "node_add_59",
+          "node_mul_68",
+          "node_mul_70",
+          "node_mul_81",
+          "node_mul_83",
+          "node_add_70",
+          "op_172:onnx.FullyConnected",
+          "node_mul_85",
+          "node_mul_87",
+          "node_add_77",
+          "node_mul_89",
+          "node_mul_91",
+          "node_mul_102",
+          "node_mul_104",
+          "node_add_88",
+          "op_19:onnx.FullyConnected",
+          "node_mul_106",
+          "node_mul_108",
+          "node_add_95",
+          "node_mul_110",
+          "node_mul_112",
+          "node_mul_123",
+          "node_mul_125",
+          "node_add_106",
+          "op_35:onnx.FullyConnected",
+          "node_mul_127",
+          "node_mul_129",
+          "node_add_113",
+          "node_mul_131",
+          "node_mul_133",
+          "node_mul_144",
+          "node_mul_146",
+          "node_add_124",
+          "op_51:onnx.FullyConnected",
+          "node_mul_148",
+          "node_mul_150",
+          "node_add_131",
+          "node_mul_152",
+          "node_mul_154",
+          "node_mul_165",
+          "node_mul_167",
+          "node_add_142",
+          "op_66:onnx.FullyConnected",
+          "node_mul_169",
+          "node_mul_171",
+          "node_add_149",
+          "node_mul_173",
+          "node_mul_175",
+          "node_mul_186",
+          "node_mul_188",
+          "node_add_160",
+          "op_81:onnx.FullyConnected",
+          "node_mul_190",
+          "node_mul_192",
+          "node_add_167",
+          "node_mul_194",
+          "node_mul_196",
+          "node_mul_207",
+          "node_mul_209",
+          "node_add_178",
+          "op_96:onnx.FullyConnected",
+          "node_mul_211",
+          "node_mul_213",
+          "node_add_185",
+          "node_mul_215",
+          "node_mul_217",
+          "node_mul_228",
+          "node_mul_230",
+          "node_add_196",
+          "op_112:onnx.FullyConnected",
+          "node_mul_232",
+          "node_mul_234",
+          "node_add_203",
+          "node_mul_236",
+          "node_mul_238",
+          "node_mul_249",
+          "node_mul_251",
+          "node_add_214",
+          "op_128:onnx.FullyConnected",
+          "node_mul_253",
+          "node_mul_256",
+          "op_223:onnx.FullyConnected"
+        ],
+        "data_type": "U16"
+      }
+    ],
+    "precision_analysis": false,
+    "precision_analysis_method": "EndToEnd",
+    "precision_analysis_mode": "NPUBackend",
+    "device": "cuda:0"
+  }
+}

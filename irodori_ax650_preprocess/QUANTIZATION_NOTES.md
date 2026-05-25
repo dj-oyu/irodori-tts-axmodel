@@ -265,3 +265,47 @@ DACVAE デコーダ（Snake cos 書換版, z(1,32,119)→audio(1,1,228480)）を
 - DiT の長文（くぐもり/声質低下）より明確に良い。単一パス=RF増幅なしの恩恵が実音でも確認できた。
 - 残るアーティファクト = 広帯域のホワイトノイズ（W8A8 の量子化雑音）。気になるなら W8A16/選択 S16 で低減余地ありだが、
   現状で「良好」判定なので**そのまま出荷も可**。cos→U16 は不要（§DACVAE検証）。
+
+## true-A16（task10）暫定: partial では効果なし・bulk S16 適用が不安定（2026-05-25）
+medB cosu16 に「U8出力 ~188 op → S16」を layer_names で指定しビルド:
+- **適用が不完全**: all-op U8 出力 194→186（8減のみ）, FC入力 S16 3→88（85変化）。~188 指定の大半が黙って未適用。
+- wav: SNR −2.38→−2.15, **mel_L1 2.16→2.14（≒変化なし）**。partial S16 では muffling 不変。
+- → true-A16 の是非は**未決**（partial すぎて結論不可）。bulk activation を確実に S16 化する手段が要るが、
+  layer_names 一括 S16 は mixedp と同様 silent drop する。Pulsar2 に「U8 を禁止し全 activation S16」global 設定が
+  あるか要調査。なければ clean な true-A16 検証は困難。
+
+## true-A16（task10）結論: activation 精度が muffling のレバー（2026-05-25）
+long(T=201) で partial U16（FC入力 87/242 を U16 化）を sim:
+| long | SNR | mel_L1 | corr |
+|---|---|---|---|
+| cosU16 | −2.36 | 3.68 | 0.083 |
+| true-A16(U16) partial | −1.85 | **3.32** | 0.187 |
+- mel_L1 3.68→3.32（~10%改善, partial coverage で）→ **activation 精度＝muffling のレバー**で確定。
+- **★ U16 は heuristic を生き残る / S16 は U8 に降格される**（U16指定で 240 op が U16 化, S16指定では ~17 のみ）。
+- **per-op layer_names は U8 op に当たらない**: 抽出名の多くが別ビルドでは既S16 op にマッチ（240→U16）し、
+  肝心の U8 op は素通り（U8 194→187）。名前ベースの bulk 指定は不安定で full coverage 不可。
+- **full coverage の本命 = global op_types の活性化 dtype を S16→U16 に変更**（heuristic 降格を回避し全活性化16bit化）。要検証。
+
+### true-A16 FULL coverage 結論（2026-05-25, task10 完了）
+真因: **Pulsar2 は各 FC の手前に U16→U8 requant を挿入**（producer 出力が U16 でも FC 入力は U8 に落とす）。
+→ **全 FC を layer_names で U16 指定**すると各 FC 入力 requant が U16 になり **245/245 full coverage**。
+long(T=201) dose-response（FC入力 U16 化率 vs 品質）:
+| FC U16 | SNR | mel_L1 | corr |
+|---|---|---|---|
+| 0/245 (cosU16) | −2.36 | 3.68 | 0.083 |
+| 87/245 (partial) | −1.85 | 3.32 | 0.187 |
+| **245/245 (full)** | **−0.61** | **2.73** | **0.379** |
+- mel_L1 単調改善 3.68→2.73（−26%）= **activation 精度が muffling のレバーで確定**。
+- 長文は「くぐもり＋声質低下」→「電話品質(≈中文)」に改善。ただし**完全透明(短文1.33)には届かず**。
+- レシピ: `cosU16 + layer_names=[全FC]→U16`（= 真の W8A16, 全 activation 16bit）。size 340→344MB（+4MB と僅少だが
+  U16 活性化は実機で帯域/レイテンシ増。速度コストは実機計測要）。
+- **config 教訓**: FC 入力精度を上げるには **FC 名を直接指定**（producer を指定しても FC 前 requant が U8 に戻す）。
+
+### true-A16 long の実聴（2026-05-25, ユーザ確認）
+- `long_truea16_FULL_quant.wav`: **こもりは改善**（true-A16 が muffling を実際に消すと実音で確認）。
+  ただし**「水中でブクブク話すような」軽いノイズ**が残る。
+- = muffling(HF欠落) → 解消、だが別の軽いアーティファクト（bubbling）が顕在化。
+- 推定: 残差は **S8 重み量子化**（Pulsar2 では FC 重みは S8 固定・FP32 は Conv 専用＝**重み精度を上げられないハード上限**）
+  と非FC U8 活性化(Mul/Add)由来。**activation を U16 にしても重みが S8 なのが PTQ の天井**。
+- → 長文の完全透明は PTQ では頭打ち。さらに上は **QAT/蒸留**（重み込みで学習）か CPU 据置。
+  進捗: 長文は plain「破綻」→ cosU16「muffled+声質低下」→ true-A16「muffled解消＋軽いbubbling」と単調改善。
