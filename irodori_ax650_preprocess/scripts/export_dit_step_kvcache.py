@@ -47,15 +47,22 @@ class DiTStepWrapperKV(nn.Module):
     """
 
     def __init__(self, model: nn.Module, num_layers: int, per_layer: int,
-                 text_dim: int, speaker_dim: int):
+                 text_dim: int, speaker_dim: int, use_latent_mask: bool = False):
         super().__init__()
         self.model = model
         self.num_layers = int(num_layers)
         self.per_layer = int(per_layer)
         self.text_dim = int(text_dim)
         self.speaker_dim = int(speaker_dim)
+        self.use_latent_mask = bool(use_latent_mask)
 
-    def forward(self, x_t, t, text_mask, speaker_mask, *kv):
+    def forward(self, x_t, t, text_mask, speaker_mask, *rest):
+        # 可変長対応: use_latent_mask 時は latent_mask を 5番目の入力に取る
+        # （max-T で生成し有効長を mask で決める → trim。fp32 検証で cosine 1.0 確認済）。
+        if self.use_latent_mask:
+            latent_mask, *kv = rest
+        else:
+            latent_mask, kv = None, list(rest)
         b = x_t.shape[0]
         text_state = x_t.new_zeros((b, text_mask.shape[1], self.text_dim))
         speaker_state = x_t.new_zeros((b, speaker_mask.shape[1], self.speaker_dim))
@@ -72,7 +79,7 @@ class DiTStepWrapperKV(nn.Module):
             speaker_mask=speaker_mask,
             caption_state=None,
             caption_mask=None,
-            latent_mask=None,
+            latent_mask=latent_mask,
             context_kv_cache=cache,
         )
 
@@ -97,6 +104,8 @@ def main() -> None:
     ap.add_argument("--opset", type=int, default=17)
     ap.add_argument("--fp16", action="store_true")
     ap.add_argument("--dynamic", action="store_true")
+    ap.add_argument("--latent-mask", action="store_true",
+                    help="latent_mask を5番目の入力として export（可変長: max-T+mask+trim 用）")
     args = ap.parse_args()
 
     weights = sorted(glob.glob(args.weights))
@@ -113,7 +122,8 @@ def main() -> None:
     per_layer = 2 + (2 if has_speaker else 0) + (2 if has_caption else 0)
     num_layers = int(cfg.num_layers)
     wrapper = DiTStepWrapperKV(
-        model, num_layers, per_layer, int(cfg.text_dim), int(cfg.speaker_dim)
+        model, num_layers, per_layer, int(cfg.text_dim), int(cfg.speaker_dim),
+        use_latent_mask=args.latent_mask,
     ).eval()
 
     blob = torch.load(args.inputs, map_location="cpu", weights_only=False)
@@ -134,7 +144,9 @@ def main() -> None:
             x_t=x_t, t=t, text_state=text_state, text_mask=text_mask,
             speaker_state=speaker_state, speaker_mask=speaker_mask,
             caption_state=None, caption_mask=None, latent_mask=None, context_kv_cache=cache)
-        out_zeros = wrapper(x_t, t, text_mask, speaker_mask, *flat_kv)
+        _lm_chk = ([torch.ones((x_t.shape[0], x_t.shape[1]), dtype=torch.bool)]
+                   if args.latent_mask else [])  # all-True = full valid, matches latent_mask=None above
+        out_zeros = wrapper(x_t, t, text_mask, speaker_mask, *_lm_chk, *flat_kv)
     eq = (out_real - out_zeros).abs().max().item()
     print(f"[check] zeros-vs-real text/speaker_state max_abs_err={eq:.3e}")
     assert eq < 1e-4, "text_state/speaker_state が実際に使われている（zeros 化不可）"
@@ -143,14 +155,23 @@ def main() -> None:
     base_names = ["x_t", "t", "text_mask", "speaker_mask"]
     kinds = ["k_text", "v_text"] + (["k_spk", "v_spk"] if has_speaker else [])
     kv_names = [f"{kind}_{i}" for i in range(num_layers) for kind in kinds]
-    names = base_names + kv_names
+    lm_names = ["latent_mask"] if args.latent_mask else []
+    names = base_names + lm_names + kv_names
 
     base = [x_t, t, text_mask, speaker_mask]
+    # latent_mask: (B,T) bool。runtime は先頭 T_real を True/残りを False にする。
+    # export dummy は **partial mask**（末尾 False）にして、全True だと no-op として
+    # input ごと folding/prune されるのを防ぐ（dead-input prune 対策, cf. text_state）。
+    lm = []
+    if args.latent_mask:
+        _m = torch.ones((x_t.shape[0], x_t.shape[1]), dtype=torch.bool)
+        _m[:, (x_t.shape[1] * 4) // 5:] = False  # 末尾20%を masked にして live input 化
+        lm = [_m]
     if args.fp16:
         model.half()
         base = [b.half() if b.is_floating_point() else b for b in base]
         flat_kv = [k.half() for k in flat_kv]
-    dummy = tuple(base) + tuple(flat_kv)
+    dummy = tuple(base) + tuple(lm) + tuple(flat_kv)
 
     print(f"[shapes] x_t={tuple(x_t.shape)} ; inputs={len(names)} (kv={len(flat_kv)}) "
           f"e.g. k_text_0={tuple(flat_kv[0].shape)} k_spk_0={tuple(flat_kv[2].shape)}")
@@ -167,6 +188,8 @@ def main() -> None:
         T = Dim("T", min=1, max=4096)
         # base 4 + vararg(KV) group。
         ds = [{0: B, 1: T}, {0: B}, {0: B}, {0: B}]
+        if args.latent_mask:
+            ds.append({0: B, 1: T})   # latent_mask (B,T)
         ds.append(tuple({0: B} for _ in flat_kv))
         dynamic_shapes = tuple(ds)
 
