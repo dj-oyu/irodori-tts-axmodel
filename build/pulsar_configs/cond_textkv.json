@@ -1,0 +1,60 @@
+{
+  "model_type": "ONNX",
+  "target_hardware": "AX650",
+  "npu_mode": "NPU1",
+  "onnx_opt": {
+    "enable_onnxsim": true
+  },
+  "quant": {
+    "calibration_method": "MinMax",
+    "input_configs": [
+      {
+        "tensor_name": "input_ids",
+        "calibration_dataset": "/data/build/calib_cond/input_ids.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      },
+      {
+        "tensor_name": "mask",
+        "calibration_dataset": "/data/build/calib_cond/mask.tar.gz",
+        "calibration_format": "Numpy",
+        "calibration_size": 32
+      }
+    ],
+    "layer_configs": [
+      {
+        "op_types": [
+          "MatMul",
+          "Gemm",
+          "Add",
+          "Mul",
+          "Sub",
+          "Div",
+          "Softmax",
+          "Sigmoid",
+          "Tanh",
+          "ReduceMean",
+          "Sqrt",
+          "Pow",
+          "Erf",
+          "Concat",
+          "Gather",
+          "Transpose",
+          "Reshape",
+          "Cos",
+          "Sin",
+          "Slice",
+          "Split",
+          "Where",
+          "Cast",
+          "Neg",
+          "Sub"
+        ],
+        "data_type": "S16",
+        "weight_data_type": "S8"
+      }
+    ],
+    "precision_analysis": false,
+    "device": "cuda:0"
+  }
+}
