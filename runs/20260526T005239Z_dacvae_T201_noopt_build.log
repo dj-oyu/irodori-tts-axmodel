@@ -1,0 +1,23 @@
++---------------+-----------------------------+
+|  Model Name   |          OnnxModel          |
++---------------+-----------------------------+
+|  Model Info   | Op Set: 17 / IR Version: 10 |
++---------------+-----------------------------+
+|     IN: z     |    float32: (1, 32, 201)    |
+|  OUT: audio   |   float32: (1, 1, 385920)   |
++---------------+-----------------------------+
+|      Add      |             41              |
+|     Conv      |             27              |
+| ConvTranspose |              4              |
+|      Cos      |             29              |
+|      Mul      |             58              |
+|    Reshape    |             29              |
+|      Sub      |             29              |
+|     Tanh      |              1              |
++---------------+-----------------------------+
+|  Model Size   |          249.26 MB          |
++---------------+-----------------------------+
+2026-05-26 08:52:54.798 | WARNING  | yamain.command.build:fill_default:314 - apply default output processor configuration to ['audio']
+2026-05-26 08:52:54.799 | INFO     | yamain.common.util:extract_archive:149 - extract [/data/build/calib_dacvae_201/z.tar.gz] to [/data/build/axmodel_dacvae_T201/quant/dataset/z]...
+Building onnx ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% 0:00:00
+Killed
