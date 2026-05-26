@@ -62,3 +62,36 @@ sudo -n PYTHONPATH=/home/exe/ai/Irodori-TTS /usr/bin/python3.10 e2e_demo/run_npu
 - A/B OK → 実機 safetensos 削除可（duration 未対応なので t-valid 手動運用）。
 - duration(A3) を ① に統合 → 完全 safetensos レス + 可変長自動。
 - 量子化劣化あり → ① レシピ調整（true-A16 / text_encoder の cos ノード特定して U16）。
+
+---
+
+# A3統合版（duration入り ①）— 2026-05-26 追記
+
+text-KV版 ① の A/B が実機で品質 OK だったので、**duration(A3) を ① に統合**＝完全 safetensos レス + 自動可変長を実現。
+
+## 変わった点
+- **① `axmodel_cond_textkv_dur`**(169MB, gitignore=手動転送): 出力が **25個**（24 text KV + **`token_logits[1,256]`**）。
+  duration head(token_sum_adarn_zero_no_aux)を統合。no_ref で speaker_vec 定数を bake、softplus/masked-sum は CPU。
+  fp32 検証: CPU(token_logits→softplus+masked-sum)=104.989 vs torch duration=104.989（**diff 7.6e-6 = 一致**）。
+- **`run_npu_full.py`**: `--t-valid 0`(既定)で **token_logits から t_valid を自動予測**（A3）。dacvae 既定 `T201`、長さ自動。
+- これで **duration_predictor も NPU 化 → model.safetensors は実行時完全不要**（tokenizer のみ）。
+
+## 実行（自動可変長, 全段NPU, safetensos不要）
+```bash
+sudo -n PYTHONPATH=/home/exe/ai/Irodori-TTS /usr/bin/python3.10 e2e_demo/run_npu_full.py \
+  --text "今日はとても良い天気ですね。" --num-steps 16 --seed 0 --out-wav /tmp/npu_a3.wav
+# 既定で cond=axmodel_cond_textkv_dur, dacvae=T201, t-valid=自動予測。手動上書きは --t-valid N。
+```
+
+## 追加検証（実機, GitHub報告）
+1. **自動 t_valid が妥当か**: 短文/中文/長文で `[A3] predicted frames=… -> t_valid=…` のログ長さが内容に整合するか。
+   特に **長文**: 旧 t-valid=119固定で崩れた長文が、A3自動 t_valid + dacvae_T201 で**自然な長さ**で出るか（step_sweep の「長文=duration問題」が解消するか）。
+2. duration の量子化影響: A3自動長 vs 手動最適長(`--t-valid`)で**実聴差**があるか（token_logits は W8A16・per-token なので padded はmask、valid領域の量子化が長さに効くか）。
+3. wav が完全 NPU（torch model/safetensos 無し）で通るか・cold 時間。
+4. もし長さがズレる → `--duration-scale` で補正可能か、または ① の duration head を true-A16 等で再量子化要か。
+
+報告: `runs/<ts>_npu_a3/RESULT.md` に push。
+
+## 手動転送ファイル更新
+- 旧 `axmodel_cond_textkv`(158MB, text KVのみ) → **`axmodel_cond_textkv_dur`(169MB, A3付)** に差し替え推奨。
+- `cond_constants.npz` は不変（同じ）。

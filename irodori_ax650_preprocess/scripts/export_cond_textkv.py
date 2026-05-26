@@ -29,12 +29,25 @@ from irodori_tts.model import TextToLatentRFDiT
 
 
 class CondTextKVWrapper(nn.Module):
-    """ids,mask -> text_state -> per-block (k_text, v_text)."""
-    def __init__(self, model: nn.Module):
+    """ids,mask -> text_state -> per-block (k_text, v_text) [+ duration token_logits].
+
+    no_ref duration head: speaker_vec is constant (baked) so the duration sub-graph is a
+    pure function of text_state. Outputs per-token token_logits[1,S] (pre-softplus); the
+    masked-sum + softplus + clamp -> t_valid is done on CPU (quant-robust, padded positions
+    masked out like the KV)."""
+    def __init__(self, model: nn.Module, speaker_vec_const: torch.Tensor | None = None):
         super().__init__()
         self.text_encoder = model.text_encoder
         self.text_norm = model.text_norm
         self.attentions = nn.ModuleList(b.attention for b in model.blocks)
+        self.with_duration = speaker_vec_const is not None
+        if self.with_duration:
+            dp = model.duration_predictor
+            self.token_input_proj = dp.token_input_proj
+            self.token_blocks = dp.token_blocks
+            self.token_out_norm = dp.token_out_norm
+            self.token_out_proj = dp.token_out_proj
+            self.register_buffer("speaker_vec", speaker_vec_const)
 
     def forward(self, input_ids, mask):
         ts = self.text_norm(self.text_encoder(input_ids, mask))   # (1,S,dim)
@@ -45,6 +58,12 @@ class CondTextKVWrapper(nn.Module):
             k = att.k_norm(k)
             v = att.wv_text(ts).reshape(bsz, S, att.heads, att.head_dim)
             outs.append(k); outs.append(v)
+        if self.with_duration:
+            h = self.token_input_proj(ts)
+            for block in self.token_blocks:
+                h = block(h, cond=self.speaker_vec)
+            token_logits = self.token_out_proj(self.token_out_norm(h)).squeeze(-1)  # (1,S)
+            outs.append(token_logits)
         return tuple(outs)
 
 
@@ -55,6 +74,7 @@ def main() -> None:
     ap.add_argument("--out", required=True)
     ap.add_argument("--seq", type=int, default=256)
     ap.add_argument("--opset", type=int, default=17)
+    ap.add_argument("--no-duration", action="store_true", help="text KV のみ(duration head 除外)")
     args = ap.parse_args()
 
     cfg_all = json.loads(Path(args.model_cfg_json).read_text())["model_cfg"]
@@ -68,15 +88,50 @@ def main() -> None:
     from rope_export_patch import apply_export_patches
     apply_export_patches(model)
     model.eval()
-    wrapper = CondTextKVWrapper(model).eval()
+
+    # no_ref constant speaker_vec for the duration head (text-independent)
+    speaker_vec = None
+    if not args.no_duration and getattr(model, "duration_predictor", None) is not None:
+        ref_len = max(1, int(cfg.speaker_patch_size))
+        rl = torch.zeros((1, ref_len, cfg.latent_dim * cfg.latent_patch_size))
+        rm = torch.zeros((1, ref_len), dtype=torch.bool)
+        d_ids = torch.zeros(1, args.seq, dtype=torch.long)
+        d_mask = torch.ones(1, args.seq, dtype=torch.bool)
+        with torch.no_grad():
+            _ts, _tmc, _ss, _smc, _, _ = model.encode_conditions(
+                text_input_ids=d_ids, text_mask=d_mask, ref_latent=rl, ref_mask=rm,
+                speaker_state_override=None, speaker_mask_override=None, speaker_uncond_mode="mask")
+            speaker_vec = model.duration_predictor._speaker_vec(
+                batch_size=1, device=_ss.device, dtype=_ss.dtype,
+                speaker_state=_ss, has_speaker=torch.zeros(1, dtype=torch.bool))
+        print(f"[duration] baked speaker_vec {tuple(speaker_vec.shape)} (no_ref const)")
+
+    wrapper = CondTextKVWrapper(model, speaker_vec_const=speaker_vec).eval()
     nblk = len(wrapper.attentions)
     out_names = [f"{kind}_text_{i}" for i in range(nblk) for kind in ("k", "v")]
+    if wrapper.with_duration:
+        out_names.append("token_logits")
 
     input_ids = torch.arange(args.seq, dtype=torch.int64).unsqueeze(0) % cfg.text_vocab_size
     mask = torch.ones(1, args.seq, dtype=torch.bool)
     with torch.no_grad():
         ref = wrapper(input_ids, mask)
-    print(f"[ref] {len(ref)} outputs, e.g. {out_names[0]}={tuple(ref[0].shape)} {out_names[1]}={tuple(ref[1].shape)}")
+    print(f"[ref] {len(ref)} outputs, e.g. {out_names[0]}={tuple(ref[0].shape)} last={out_names[-1]}={tuple(ref[-1].shape)}")
+
+    # duration fp32 cross-check: CPU softplus+masked-sum of token_logits vs torch predict_duration
+    if wrapper.with_duration:
+        import torch.nn.functional as F
+        tl = ref[-1]
+        total_cpu = (F.softplus(tl.float()) * mask.float()).sum(dim=1)  # = pred_frames
+        aux_dim = int(cfg.duration_aux_dim)
+        with torch.no_grad():
+            ts2 = model.text_norm(model.text_encoder(input_ids, mask))
+            plf = model.predict_duration_log_frames(
+                text_state=ts2, text_mask=mask, speaker_state=_ss, speaker_mask=_smc,
+                duration_features=torch.zeros(1, aux_dim), has_speaker=torch.zeros(1, dtype=torch.bool))
+            pred_frames_torch = torch.expm1(plf).float()
+        print(f"[duration] frames CPU(via token_logits)={total_cpu.item():.3f} vs torch={pred_frames_torch.item():.3f} "
+              f"diff={abs(total_cpu.item()-pred_frames_torch.item()):.3e}")
 
     out_path = Path(args.out); out_path.parent.mkdir(parents=True, exist_ok=True)
     with torch.no_grad():
