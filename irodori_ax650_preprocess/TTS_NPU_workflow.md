@@ -1,5 +1,11 @@
 # TTS NPU フル活用 ワークフロー / Usage（実機 AX8850 向け, 2026-05-26）
 
+> ## ⚠️ 本doc は「条件付け=torch CPU(slim)」段階の手順（A1 着手前）。
+> **現行の全段NPU・safetensorsレス手順は [`../docs/deploy_ai_pyramid_pro.md`](../docs/deploy_ai_pyramid_pro.md)
+> と `e2e_demo/run_npu_full.py`（条件付けも NPU 化済み）を参照。**
+> 本doc の slim_stageA(torch cond) → e2e_npu 経路は A/B リファレンスとして残置。
+> step/CFG/t-valid・ノイズ切り分け・NPU排他の知見は現行でも有効。
+
 > 現時点の**最良コンポーネントでの text→wav 実行手順**を1枚に集約。
 > 背景・検証値は: `実機検証_R123_axmodel説明.md` / `runs/*_r123` `*_slim_e2e` `*_stepsweep` の RESULT.md /
 > `slim_torch_conditioning.md` / `NPU実用化_ギャップ分析.md`。
