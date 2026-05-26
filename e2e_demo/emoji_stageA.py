@@ -13,11 +13,12 @@ from irodori_tts.model import TextToLatentRFDiT
 from irodori_tts.tokenizer import PretrainedTextTokenizer
 from irodori_tts.text_normalization import normalize_text
 
-# (label, text) — plain/emoji A-B + one extra. cond-only (no CFG) to cut Stage A memory ~3x.
+# (label, text) — plain/emoji A-B discriminator pair (same text ± 😄).
+# Builds all 3 CFG branches (cond/text/spk) per text; cond-only sampling collapses to
+# noise (RF model trained with CFG-dropout is unusable at guidance=1), so CFG is required.
 ITEMS = [
     ("plain_tanoshii", "今日はとても楽しいです。"),
     ("emoji_tanoshii", "今日はとても楽しいです😄"),
-    ("emoji_laugh",    "あはは、おかしいね😄😄"),
 ]
 
 def main():
@@ -54,7 +55,14 @@ def main():
             (ts, tmc, ss, smc, _a, _b) = model.encode_conditions(
                 text_input_ids=ids, text_mask=tmask, ref_latent=ref_latent, ref_mask=ref_mask,
                 speaker_state_override=None, speaker_mask_override=None, speaker_uncond_mode="mask")
-            caches = {"cond": model.build_context_kv_cache(text_state=ts, speaker_state=ss, caption_state=None)}
+            # CFG (independent mode) needs 3 KV caches: cond / text-uncond / spk-uncond.
+            ts_uncond = torch.zeros_like(ts)
+            ss_uncond = torch.zeros_like(ss)
+            caches = {
+                "cond": model.build_context_kv_cache(text_state=ts, speaker_state=ss, caption_state=None),
+                "text": model.build_context_kv_cache(text_state=ts_uncond, speaker_state=ss, caption_state=None),
+                "spk":  model.build_context_kv_cache(text_state=ts, speaker_state=ss_uncond, caption_state=None),
+            }
         save = {}
         for br, cache in caches.items():
             for li, layer in enumerate(cache):
