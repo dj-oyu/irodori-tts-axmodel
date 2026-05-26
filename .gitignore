@@ -34,6 +34,14 @@ build/*
 pulsar2_pkg/
 ax_pulsar2_*.tar.gz
 
+# ── run artifacts（device固有ログ / scratch・巨大）──────
+# runs/ の REPORT.md / RESULT.md / *.json は追跡。ログ・deadman・中間テンソルは除外。
+*.npz
+*.npy
+runs/**/*.log
+runs/**/deadman.*
+runs/LATEST*
+
 # ── OS / editor ─────────────────────────────────────────
 .DS_Store
 *.swp
