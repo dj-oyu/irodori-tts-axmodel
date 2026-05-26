@@ -39,24 +39,34 @@ sudo -n PYTHONPATH=. /usr/bin/python3.10 e2e_demo/e2e_npu.py \
   --cond /tmp/cond/cond_plain.npz \
   --dit   build/axmodel_kv_long_lm_allfcu16_npu3/compiled.axmodel \
   --dacvae build/axmodel_dacvae_b0/compiled.axmodel --t-valid 119 \
-  --num-steps 32 --cfg-text 3 --cfg-spk 5 --seed 0 \
+  --num-steps 16 --cfg-text 3 --cfg-spk 5 --seed 0 \   # 推奨 global N=16(2.2s); 最高品質は 32
   --out-wav /tmp/out.wav
 ```
 - `slim_stageA` の cond は `e2e_npu` の `--cond` に**直結互換**（キー命名一致確認済）。
 - 話者バリエーション: `--seed` だけで性別含め振れる（参照音声/torch再実行 不要）。
 - cond-only（CFG省略で高速・低品質）: `e2e_npu --no-cfg`。
 
-## 内容依存の設定（step_sweep 実機知見の運用化）
-**レイテンシ = calls × 56ms**（線形, npu3）。calls は step数×CFG分岐（N=32→76call/4.3s, N=8→20call/1.1s）。
-**step floor は内容長×CFG×duration と結合 → 一律削減は不可。**
+## step / CFG 設定（step_sweep 実機知見, 2026-05-26 訂正版）
+**レイテンシ = calls × 56ms**（線形, npu3）。calls は step数×CFG分岐（N=32→76call/4.3s, N=16→38call/2.2s, N=8→20call/1.1s）。
 
-| 文の長さ | num-steps | CFG | DACVAE / t-valid | 備考 |
-|---|---|---|---|---|
-| 短文(~5tok) | **8**（攻め）〜20 | cfg 1.5/2.5（低CFGが低stepを救う） | b0 / 119 | N=8+低CFGで ~1.1s(3.9x速)・実用。標準は N=20 |
-| 中文(~11tok) | 20〜32（保守） | **標準 3/5**（低CFG攻めは崩れる=under-guide） | b0 / 119 | 低step+低CFG=識別不能ノイズ |
-| 長文(~29tok) | 32 | 標準 3/5 | **T201 / 201** | **t-valid=119 だとノイズ（duration不一致A3）→ T=201 で完璧**。dacvae_T201 必須 |
+**推奨 global = `--num-steps 16` + 標準CFG(3/5)**（duration(A3)/t-valid さえ正しければ **step削減は内容横断で効く**）。
+当初の「一律削減は不可」は **duration 交絡**だった（長文崩壊は step でなく t-valid 不一致が原因, 下表）。
 
-→ step削減を本番採用するなら **CFG 再調整を必須随伴**（B2 は step×CFG で1つの最適化）。
+| num-steps | 速度(対32) | 適性 |
+|---|---|---|
+| 32 | 4.3s (1.0×) | 最高品質・保守。長文の量子化床ノイズは step では戻らない |
+| **16** | **2.2s (0.50×)** | **推奨スイートスポット**: 中長文クリーン・短文ぎりぎり。費用対効果最良（16→12 は0.6s短縮のみ） |
+| 20 | 2.7s (0.63×) | 全文安全（短文込み）。最も無難な global |
+| 8 + 低CFG(1.5/2.5) | 1.1s (3.9×) | **短文専用の攻め手**。global には不要（中文は under-guide で崩れる） |
+
+**t-valid / DACVAE は内容長で必ず合わせる**（step とは独立・A3 の役割）:
+| 文の長さ | t-valid / DACVAE | 理由 |
+|---|---|---|
+| 短〜中文(~4.76s, ≲20tok) | 119 / `dacvae_b0` | |
+| 長文(~8.04s, ~29tok) | **201 / `dacvae_T201`** | t-valid=119 だとノイズ（duration不一致A3）→ T=201 で完璧再生 |
+| ~8s 超 | 要チャンク分割 | T_max=201 が上限 |
+
+→ アーキ: **短文専用モデルを持たず、1本の T_max=201 axmodel + latent_mask + A3(per-utterance t-valid)** で可変長。長さルーティング不要・ビルド/検証1本。**A3(duration予測)が前提**（無いと t-valid固定=短文専用）。
 
 ## ノイズの切り分け（実聴語彙→要因, 混同しない）
 - 「AM/電話ラジオ風（帯域制限）」= **量子化の床(R3)**。step/CFG非依存・常在。~3kHz頭打ち=PTQ天井。
