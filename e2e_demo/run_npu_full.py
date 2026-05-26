@@ -56,6 +56,8 @@ def main():
     ap.add_argument("--t-valid", type=int, default=0,
                     help="0 = A3自動(token_logits から duration予測); >0 で手動上書き")
     ap.add_argument("--duration-scale", type=float, default=1.0)
+    ap.add_argument("--keep-bos-frames", action="store_true",
+                    help="include BOS token frames in A3 duration (default: exclude — BOS over-predicts)")
     ap.add_argument("--min-sec", type=float, default=0.3)
     ap.add_argument("--max-sec", type=float, default=8.0)
     ap.add_argument("--hop", type=int, default=1920)
@@ -102,7 +104,10 @@ def main():
         print(f"[A3] t_valid={t_valid} (manual override)", flush=True)
     elif token_logits is not None:
         token_frames = np.logaddexp(0.0, token_logits.astype(np.float64))  # softplus
-        pred_frames = float((token_frames * text_mask.astype(np.float64)).sum())
+        dur_mask = text_mask.astype(np.float64).copy()
+        if not args.keep_bos_frames:
+            dur_mask[..., 0] = 0.0  # exclude BOS leading-token frames (add_bos prepends BOS@0)
+        pred_frames = float((token_frames * dur_mask).sum())
         min_f = max(1, math.ceil(args.min_sec * args.sr / args.hop))
         max_f = min(T, max(1, math.floor(args.max_sec * args.sr / args.hop)))
         t_valid = int(round(pred_frames * args.duration_scale))

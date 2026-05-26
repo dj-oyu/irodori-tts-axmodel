@@ -41,11 +41,30 @@ on-device で fp32 duration_predictor(meta-slim) を回し、NPU① の token_lo
 - token1=**BOS**(id=1)が大きな可変frame（plain48.7≈2s/long35、但しsibilant5.3）→「BOS=先頭pause」説は部分的（一貫せず）。**A1検証の冒頭アーティファクトもBOS由来の可能性**（両経路がBOSを通る）。
 - 誤差が両方向（plain過大124 vs理想~60 / sibilant過小81 vs理想~110）＝**単一scaleで直らない**。**no_ref / no-speaker 推論configで duration predictor が不正確**（has_speaker=False のadarn_zero経路が弱い可能性）。
 
-## 推奨 / 次
-1. **当面は手動 `--t-valid`**（step_sweep知見: 内容長に合わせる。plain~60/sibilant~110/long200）。A3自動は未だ本番不可。
-2. ✅ **fp32突合 完了 → 量子化でなく duration head のモデル挙動**（`dur_fp32_probe.py`）。**duration head の再ビルドは不要**。次は **モデル側**: (a) 学習時の推論config確認（has_speaker=True/参照話者付きで予測が改善するか＝no-speaker経路が弱いか）、(b) BOSトークンのframe扱い（先頭pause設計か）、(c) ダメなら token数ベースのヒューリスティック or 手動t-valid運用。
-3. shape fix（問題1）は汎用に有用＝反映推奨。
-4. **冒頭アーティファクト**（A1の宿題）も BOS の大frame由来かを切り分け（plain BOS=48.7frame≈2s が先頭に何を生成しているか）。
+### 究明の決着 = D1（モデルは正常、duration head だけが欠陥）
+plain「今日はとても楽しいです。」を手動 t_valid でスイープ（実聴）:
+
+| t_valid | 秒 | 実聴 |
+|---|---|---|
+| 60 | 2.40 | **ちょうどいい（クリーン）** ✅ |
+| 70 | 2.80 | **ちょうどいい（クリーン）** ✅ |
+| 80 | 3.20 | 「今日は」後に不自然なタメ |
+| 110 | 4.40 | 2回言う（繰返し） |
+
+→ **モデルは t_valid≈60-70（自然な内容長）でクリーンにレンダリングできる**。defect は **duration head の予測値**（134≈理想65の2倍）だけ。
+- BOS-drop（→92, 1.4×過大）も不可: 「破綻/phaserエフェクト」。モデルは**過剰割当に過敏**（+15fr→不自然なタメ、+45fr→繰返し）→ headは±数frで当てる必要があるのに2×外す。
+- has_speaker=True でも plain 93（1.4×過大）→ 参照話者でも直らない。
+
+## 推奨 / 次（確定）
+1. **robust な自動durationの本筋 = duration head の再学習/校正（モデル所有者）**。`token_sum_adarn_zero_no_aux` head、特に **no-speaker(null_speaker)経路**が短文2倍過大・中文過小（両方向誤差）。**量子化・config・frame-rate・BOS・has_speaker は全て切り分け済＝原因でない**。
+2. **オンデバイスのrobust自動修正は存在しない**: 誤差両方向ゆえ単一scale/BOS-drop/ヒューリスティックで両立不可。手動t-valid(plain60-70)は効くが運用不安定。
+3. **健全な部分**（モデル本体レンダリング・cond NPU(A1)・DiT・dacvae・safetensorsレス全段）はそのまま使える。defect は duration head に**完全に限局**。
+4. shape fix（問題1, max-T+mask+trim audio）と BOS-exclude フラグ（`--keep-bos-frames`）は `run_npu_full` に反映済。
+5. 冒頭アーティファクト（A1宿題）: BOS-drop でも残存（plain破綻に紛れ未確定）。duration修正後に再確認。
+
+## 成果物（追加）
+- `e2e_demo/dur_fp32_probe.py`（fp32 duration突合）、`run_npu_full.py`（shape fix + `--keep-bos-frames`）。
+- 長さスイープ wav: `/tmp/a3_len{60,70,80,110}_plain.wav`（device一時）。
 
 ## 成果物
 - wav: `/tmp/a3_{plain,sibilant,long}.wav`（device一時）。
