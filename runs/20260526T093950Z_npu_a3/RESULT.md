@@ -27,14 +27,25 @@ formula: `pred_frames = Σ_valid softplus(token_logits)`、25 frame/s（hop1920@
 - per-token frames が 26.7/7.2/12.5 と乱高下（日本語は~0.1-0.2s/token=2.5-5frame が自然）→ 全体に過大寄り、文で不安定。
 - long が良かったのは raw362 が clamp(max 200)で偶然妥当長に落ちただけ（35tok等ならclampで過小化し崩れる想定）。
 
-### 原因候補（build host 切り分け要）
-- **duration head の量子化**（W8A16, per-token）。NPU予測 vs **fp32 duration_predictor** の突合で量子化か否か判定（実機にfp32無し→build host/sim）。
-- **formula/解釈ミス**の可能性: token_logits→frames の変換（softplus+masked-sum）が学習時定義と一致するか。scale/log-domain/集約方法を確認。
+### 原因究明 = **量子化ではなく duration head のモデル挙動**（実機 fp32突合で確定, `dur_fp32_probe.py`）
+on-device で fp32 duration_predictor(meta-slim) を回し、NPU① の token_logits と per-token 突合:
+
+| 文 | fp32 sum | NPU sum | fp32 BOS(tok1) |
+|---|---|---|---|
+| plain | 123.8 | 133.6 | 48.7 |
+| sibilant | 81.5 | 79.5 | 5.3 |
+| long | 334.3 | 362 | 35.0 |
+
+- **fp32 ≈ NPU**（量子化誤差は小: 123.8→133.6 等）→ **量子化は原因でない。duration head 自体が over/under予測**。**rebuild不要**。
+- formula(softplus+masked-sum)も model の forward と一致＝正しい。
+- token1=**BOS**(id=1)が大きな可変frame（plain48.7≈2s/long35、但しsibilant5.3）→「BOS=先頭pause」説は部分的（一貫せず）。**A1検証の冒頭アーティファクトもBOS由来の可能性**（両経路がBOSを通る）。
+- 誤差が両方向（plain過大124 vs理想~60 / sibilant過小81 vs理想~110）＝**単一scaleで直らない**。**no_ref / no-speaker 推論configで duration predictor が不正確**（has_speaker=False のadarn_zero経路が弱い可能性）。
 
 ## 推奨 / 次
 1. **当面は手動 `--t-valid`**（step_sweep知見: 内容長に合わせる。plain~60/sibilant~110/long200）。A3自動は未だ本番不可。
-2. duration head を **fp32突合**して量子化 vs formula を切り分け → 量子化なら true-A16 等で再ビルド、formula なら run_npu_full 側の変換修正。
+2. ✅ **fp32突合 完了 → 量子化でなく duration head のモデル挙動**（`dur_fp32_probe.py`）。**duration head の再ビルドは不要**。次は **モデル側**: (a) 学習時の推論config確認（has_speaker=True/参照話者付きで予測が改善するか＝no-speaker経路が弱いか）、(b) BOSトークンのframe扱い（先頭pause設計か）、(c) ダメなら token数ベースのヒューリスティック or 手動t-valid運用。
 3. shape fix（問題1）は汎用に有用＝反映推奨。
+4. **冒頭アーティファクト**（A1の宿題）も BOS の大frame由来かを切り分け（plain BOS=48.7frame≈2s が先頭に何を生成しているか）。
 
 ## 成果物
 - wav: `/tmp/a3_{plain,sibilant,long}.wav`（device一時）。
