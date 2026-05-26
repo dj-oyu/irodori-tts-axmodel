@@ -4,15 +4,13 @@
 条件付けを ① cond axmodel (text KV) + bake 済定数(speaker/text-branch KV) で構成し、
 DiT(allfcu16_npu3) → dacvae(T201/b0) まで全段 NPU。tokenizer のみ torch 非依存で使用。
 
-no_ref 専用（話者は --seed）。検証は実機で行い、結果は RESULT.md に書いて GitHub 共有。
+no_ref 専用（話者は --seed）。A3: ① が token_logits を出すと t_valid を自動予測（可変長）。
+検証は実機で行い、結果は RESULT.md に書いて GitHub 共有。
 
   sudo -n PYTHONPATH=/home/exe/ai/Irodori-TTS /usr/bin/python3.10 e2e_demo/run_npu_full.py \
-    --text "今日はとても良い天気ですね。" \
-    --cond build/axmodel_cond_textkv/compiled.axmodel \
-    --constants build/cond_constants.npz \
-    --dit build/axmodel_kv_long_lm_allfcu16_npu3/compiled.axmodel \
-    --dacvae build/axmodel_dacvae_b0/compiled.axmodel --t-valid 119 \
-    --num-steps 16 --seed 0 --out-wav /tmp/npu_full.wav
+    --text "今日はとても良い天気ですね。" --num-steps 16 --seed 0 --out-wav /tmp/npu_full.wav
+  # 既定: cond=axmodel_cond_textkv_dur(A3付), dacvae=T201, t-valid=自動。
+  # 手動長さ: --t-valid 119。duration補正: --duration-scale 1.1 等。
 """
 from __future__ import annotations
 import argparse, math, time, wave
@@ -50,11 +48,17 @@ def tokenize(text, seq=256):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--text", required=True)
-    ap.add_argument("--cond", default="build/axmodel_cond_textkv/compiled.axmodel")
+    ap.add_argument("--cond", default="build/axmodel_cond_textkv_dur/compiled.axmodel",
+                    help="① cond axmodel (text KV [+ token_logits=A3 duration])")
     ap.add_argument("--constants", default="build/cond_constants.npz")
     ap.add_argument("--dit", default="build/axmodel_kv_long_lm_allfcu16_npu3/compiled.axmodel")
-    ap.add_argument("--dacvae", default="build/axmodel_dacvae_b0/compiled.axmodel")
-    ap.add_argument("--t-valid", type=int, default=119)
+    ap.add_argument("--dacvae", default="build/axmodel_dacvae_T201/compiled.axmodel")
+    ap.add_argument("--t-valid", type=int, default=0,
+                    help="0 = A3自動(token_logits から duration予測); >0 で手動上書き")
+    ap.add_argument("--duration-scale", type=float, default=1.0)
+    ap.add_argument("--min-sec", type=float, default=0.3)
+    ap.add_argument("--max-sec", type=float, default=8.0)
+    ap.add_argument("--hop", type=int, default=1920)
     ap.add_argument("--num-steps", type=int, default=16)
     ap.add_argument("--cfg-text", type=float, default=3.0)
     ap.add_argument("--cfg-spk", type=float, default=5.0)
@@ -78,9 +82,11 @@ def main():
     feed_cond = {"input_ids": ids.astype(np.int32), "mask": text_mask.astype(np.uint8)}
     feed_cond = {n: feed_cond[n] for n in cin}
     out_names = [o.name for o in cond.get_outputs()]
-    cout = cond.run(None, feed_cond)
-    text_kv = {out_names[i]: np.asarray(cout[i], np.float32) for i in range(len(out_names))}
-    print(f"[cond①] {len(text_kv)} text-KV, load+run {time.time()-t0:.2f}s", flush=True)
+    cout = {out_names[i]: np.asarray(cout_i, np.float32) for i, cout_i in enumerate(cond.run(None, feed_cond))}
+    token_logits = cout.pop("token_logits", None)  # A3 duration head (per-token, pre-softplus)
+    text_kv = cout
+    print(f"[cond①] {len(text_kv)} text-KV{' + token_logits(A3)' if token_logits is not None else ''}, "
+          f"load+run {time.time()-t0:.2f}s", flush=True)
 
     K = np.load(args.constants)  # baked constants
 
@@ -89,7 +95,24 @@ def main():
     ishapes = {i.name: tuple(i.shape) for i in dit.get_inputs()}
     T = ishapes["x_t"][1]; latent_dim = ishapes["x_t"][2]
     nlayers = sum(1 for n in ishapes if n.startswith("k_text_"))
-    latent_mask = np.zeros((1, T), np.uint8); latent_mask[:, :args.t_valid] = 1
+
+    # A3: t_valid from duration head (CPU softplus + masked-sum), or manual override
+    if args.t_valid > 0:
+        t_valid = min(args.t_valid, T)
+        print(f"[A3] t_valid={t_valid} (manual override)", flush=True)
+    elif token_logits is not None:
+        token_frames = np.logaddexp(0.0, token_logits.astype(np.float64))  # softplus
+        pred_frames = float((token_frames * text_mask.astype(np.float64)).sum())
+        min_f = max(1, math.ceil(args.min_sec * args.sr / args.hop))
+        max_f = min(T, max(1, math.floor(args.max_sec * args.sr / args.hop)))
+        t_valid = int(round(pred_frames * args.duration_scale))
+        t_valid = max(min_f, min(max_f, t_valid))
+        print(f"[A3] predicted frames={pred_frames:.1f} scale={args.duration_scale} "
+              f"-> t_valid={t_valid} ({t_valid*args.hop/args.sr:.2f}s)", flush=True)
+    else:
+        t_valid = min(119, T)
+        print(f"[A3] no token_logits; fallback t_valid={t_valid}", flush=True)
+    latent_mask = np.zeros((1, T), np.uint8); latent_mask[:, :t_valid] = 1
     zero_tm = np.zeros_like(text_mask.astype(np.uint8))
     spk_mask = K["speaker_mask"]; zero_sm = np.zeros_like(spk_mask)
 
@@ -146,7 +169,7 @@ def main():
     print(f"[dit] sampling {tot/1000:.1f}s ({tot/ max(1,(args.num_steps)):.0f}ms/step avg)", flush=True)
 
     # 5) trim -> dacvae -> wav
-    z = np.ascontiguousarray(np.transpose(x_t, (0, 2, 1))[:, :, :args.t_valid]).astype(np.float32)
+    z = np.ascontiguousarray(np.transpose(x_t, (0, 2, 1))[:, :, :t_valid]).astype(np.float32)
     dac = axe.InferenceSession(args.dacvae)
     zin = dac.get_inputs()[0].name
     s = time.time(); audio = np.asarray(dac.run(None, {zin: z})[0]).reshape(-1)
