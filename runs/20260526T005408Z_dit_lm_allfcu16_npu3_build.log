@@ -1,0 +1,1099 @@
++------------------+-----------------------------+
+|    Model Name    |          OnnxModel          |
++------------------+-----------------------------+
+|    Model Info    | Op Set: 18 / IR Version: 10 |
++------------------+-----------------------------+
+|     IN: x_t      |    float32: (1, 201, 32)    |
+|      IN: t       |        float32: (1,)        |
+|  IN: text_mask   |       bool: (1, 256)        |
+| IN: speaker_mask |        bool: (1, 2)         |
+| IN: latent_mask  |       bool: (1, 201)        |
+|   IN: k_text_0   |  float32: (1, 256, 20, 64)  |
+|   IN: v_text_0   |  float32: (1, 256, 20, 64)  |
+|   IN: k_spk_0    |   float32: (1, 2, 20, 64)   |
+|   IN: v_spk_0    |   float32: (1, 2, 20, 64)   |
+|   IN: k_text_1   |  float32: (1, 256, 20, 64)  |
+|   IN: v_text_1   |  float32: (1, 256, 20, 64)  |
+|   IN: k_spk_1    |   float32: (1, 2, 20, 64)   |
+|   IN: v_spk_1    |   float32: (1, 2, 20, 64)   |
+|   IN: k_text_2   |  float32: (1, 256, 20, 64)  |
+|   IN: v_text_2   |  float32: (1, 256, 20, 64)  |
+|   IN: k_spk_2    |   float32: (1, 2, 20, 64)   |
+|   IN: v_spk_2    |   float32: (1, 2, 20, 64)   |
+|   IN: k_text_3   |  float32: (1, 256, 20, 64)  |
+|   IN: v_text_3   |  float32: (1, 256, 20, 64)  |
+|   IN: k_spk_3    |   float32: (1, 2, 20, 64)   |
+|   IN: v_spk_3    |   float32: (1, 2, 20, 64)   |
+|   IN: k_text_4   |  float32: (1, 256, 20, 64)  |
+|   IN: v_text_4   |  float32: (1, 256, 20, 64)  |
+|   IN: k_spk_4    |   float32: (1, 2, 20, 64)   |
+|   IN: v_spk_4    |   float32: (1, 2, 20, 64)   |
+|   IN: k_text_5   |  float32: (1, 256, 20, 64)  |
+|   IN: v_text_5   |  float32: (1, 256, 20, 64)  |
+|   IN: k_spk_5    |   float32: (1, 2, 20, 64)   |
+|   IN: v_spk_5    |   float32: (1, 2, 20, 64)   |
+|   IN: k_text_6   |  float32: (1, 256, 20, 64)  |
+|   IN: v_text_6   |  float32: (1, 256, 20, 64)  |
+|   IN: k_spk_6    |   float32: (1, 2, 20, 64)   |
+|   IN: v_spk_6    |   float32: (1, 2, 20, 64)   |
+|   IN: k_text_7   |  float32: (1, 256, 20, 64)  |
+|   IN: v_text_7   |  float32: (1, 256, 20, 64)  |
+|   IN: k_spk_7    |   float32: (1, 2, 20, 64)   |
+|   IN: v_spk_7    |   float32: (1, 2, 20, 64)   |
+|   IN: k_text_8   |  float32: (1, 256, 20, 64)  |
+|   IN: v_text_8   |  float32: (1, 256, 20, 64)  |
+|   IN: k_spk_8    |   float32: (1, 2, 20, 64)   |
+|   IN: v_spk_8    |   float32: (1, 2, 20, 64)   |
+|   IN: k_text_9   |  float32: (1, 256, 20, 64)  |
+|   IN: v_text_9   |  float32: (1, 256, 20, 64)  |
+|   IN: k_spk_9    |   float32: (1, 2, 20, 64)   |
+|   IN: v_spk_9    |   float32: (1, 2, 20, 64)   |
+|  IN: k_text_10   |  float32: (1, 256, 20, 64)  |
+|  IN: v_text_10   |  float32: (1, 256, 20, 64)  |
+|   IN: k_spk_10   |   float32: (1, 2, 20, 64)   |
+|   IN: v_spk_10   |   float32: (1, 2, 20, 64)   |
+|  IN: k_text_11   |  float32: (1, 256, 20, 64)  |
+|  IN: v_text_11   |  float32: (1, 256, 20, 64)  |
+|   IN: k_spk_11   |   float32: (1, 2, 20, 64)   |
+|   IN: v_spk_11   |   float32: (1, 2, 20, 64)   |
+|   OUT: v_pred    |    float32: (1, 201, 32)    |
++------------------+-----------------------------+
+|       Add        |             303             |
+|       Cast       |              1              |
+|      Concat      |             74              |
+|       Cos        |              1              |
+|       Div        |             49              |
+|      Gather      |             50              |
+|       Gemm       |              3              |
+|      MatMul      |             266             |
+|       Mul        |             285             |
+|       Not        |              1              |
+|    ReduceMean    |             49              |
+|     Reshape      |             120             |
+|     Sigmoid      |             29              |
+|       Sin        |              1              |
+|     Softmax      |             12              |
+|      Split       |             25              |
+|       Sqrt       |             49              |
+|       Sub        |             24              |
+|       Tanh       |             24              |
+|    Transpose     |             60              |
+|    Unsqueeze     |             53              |
++------------------+-----------------------------+
+|    Model Size    |           1.16 GB           |
++------------------+-----------------------------+
+2026-05-26 08:54:25.250 | WARNING  | yamain.command.build:fill_default:314 - apply default output processor configuration to ['v_pred']
+2026-05-26 08:54:25.251 | INFO     | yamain.common.util:extract_archive:149 - extract [/data/build/calib_kv_long/x_t.tar.gz] to [/data/build/axmodel_kv_long_lm_allfcu16_npu3/quant/dataset/x_t]...
+2026-05-26 08:54:25.273 | INFO     | yamain.common.util:extract_archive:149 - extract [/data/build/calib_kv_long/t.tar.gz] to [/data/build/axmodel_kv_long_lm_allfcu16_npu3/quant/dataset/t]...
+2026-05-26 08:54:25.288 | INFO     | yamain.common.util:extract_archive:149 - extract [/data/build/calib_kv_long/text_mask.tar.gz] to [/data/build/axmodel_kv_long_lm_allfcu16_npu3/quant/dataset/text_mask]...
+2026-05-26 08:54:25.304 | INFO     | yamain.common.util:extract_archive:149 - extract [/data/build/calib_kv_long/speaker_mask.tar.gz] to [/data/build/axmodel_kv_long_lm_allfcu16_npu3/quant/dataset/speaker_mask]...
+2026-05-26 08:54:25.322 | INFO     | yamain.common.util:extract_archive:149 - extract [/data/build/calib_kv_long/k_text_0.tar.gz] to [/data/build/axmodel_kv_long_lm_allfcu16_npu3/quant/dataset/k_text_0]...
+2026-05-26 08:54:25.479 | INFO     | yamain.common.util:extract_archive:149 - extract [/data/build/calib_kv_long/v_text_0.tar.gz] to [/data/build/axmodel_kv_long_lm_allfcu16_npu3/quant/dataset/v_text_0]...
+2026-05-26 08:54:25.636 | INFO     | yamain.common.util:extract_archive:149 - extract [/data/build/calib_kv_long/k_spk_0.tar.gz] to [/data/build/axmodel_kv_long_lm_allfcu16_npu3/quant/dataset/k_spk_0]...
+2026-05-26 08:54:25.653 | INFO     | yamain.common.util:extract_archive:149 - extract [/data/build/calib_kv_long/v_spk_0.tar.gz] to [/data/build/axmodel_kv_long_lm_allfcu16_npu3/quant/dataset/v_spk_0]...
+2026-05-26 08:54:25.671 | INFO     | yamain.common.util:extract_archive:149 - extract [/data/build/calib_kv_long/k_text_1.tar.gz] to [/data/build/axmodel_kv_long_lm_allfcu16_npu3/quant/dataset/k_text_1]...
+2026-05-26 08:54:25.828 | INFO     | yamain.common.util:extract_archive:149 - extract [/data/build/calib_kv_long/v_text_1.tar.gz] to [/data/build/axmodel_kv_long_lm_allfcu16_npu3/quant/dataset/v_text_1]...
+2026-05-26 08:54:25.984 | INFO     | yamain.common.util:extract_archive:149 - extract [/data/build/calib_kv_long/k_spk_1.tar.gz] to [/data/build/axmodel_kv_long_lm_allfcu16_npu3/quant/dataset/k_spk_1]...
+2026-05-26 08:54:26.001 | INFO     | yamain.common.util:extract_archive:149 - extract [/data/build/calib_kv_long/v_spk_1.tar.gz] to [/data/build/axmodel_kv_long_lm_allfcu16_npu3/quant/dataset/v_spk_1]...
+2026-05-26 08:54:26.018 | INFO     | yamain.common.util:extract_archive:149 - extract [/data/build/calib_kv_long/k_text_2.tar.gz] to [/data/build/axmodel_kv_long_lm_allfcu16_npu3/quant/dataset/k_text_2]...
+2026-05-26 08:54:26.175 | INFO     | yamain.common.util:extract_archive:149 - extract [/data/build/calib_kv_long/v_text_2.tar.gz] to [/data/build/axmodel_kv_long_lm_allfcu16_npu3/quant/dataset/v_text_2]...
+2026-05-26 08:54:26.332 | INFO     | yamain.common.util:extract_archive:149 - extract [/data/build/calib_kv_long/k_spk_2.tar.gz] to [/data/build/axmodel_kv_long_lm_allfcu16_npu3/quant/dataset/k_spk_2]...
+2026-05-26 08:54:26.349 | INFO     | yamain.common.util:extract_archive:149 - extract [/data/build/calib_kv_long/v_spk_2.tar.gz] to [/data/build/axmodel_kv_long_lm_allfcu16_npu3/quant/dataset/v_spk_2]...
+2026-05-26 08:54:26.365 | INFO     | yamain.common.util:extract_archive:149 - extract [/data/build/calib_kv_long/k_text_3.tar.gz] to [/data/build/axmodel_kv_long_lm_allfcu16_npu3/quant/dataset/k_text_3]...
+2026-05-26 08:54:26.522 | INFO     | yamain.common.util:extract_archive:149 - extract [/data/build/calib_kv_long/v_text_3.tar.gz] to [/data/build/axmodel_kv_long_lm_allfcu16_npu3/quant/dataset/v_text_3]...
+2026-05-26 08:54:26.678 | INFO     | yamain.common.util:extract_archive:149 - extract [/data/build/calib_kv_long/k_spk_3.tar.gz] to [/data/build/axmodel_kv_long_lm_allfcu16_npu3/quant/dataset/k_spk_3]...
+2026-05-26 08:54:26.695 | INFO     | yamain.common.util:extract_archive:149 - extract [/data/build/calib_kv_long/v_spk_3.tar.gz] to [/data/build/axmodel_kv_long_lm_allfcu16_npu3/quant/dataset/v_spk_3]...
+2026-05-26 08:54:26.712 | INFO     | yamain.common.util:extract_archive:149 - extract [/data/build/calib_kv_long/k_text_4.tar.gz] to [/data/build/axmodel_kv_long_lm_allfcu16_npu3/quant/dataset/k_text_4]...
+2026-05-26 08:54:26.871 | INFO     | yamain.common.util:extract_archive:149 - extract [/data/build/calib_kv_long/v_text_4.tar.gz] to [/data/build/axmodel_kv_long_lm_allfcu16_npu3/quant/dataset/v_text_4]...
+2026-05-26 08:54:27.028 | INFO     | yamain.common.util:extract_archive:149 - extract [/data/build/calib_kv_long/k_spk_4.tar.gz] to [/data/build/axmodel_kv_long_lm_allfcu16_npu3/quant/dataset/k_spk_4]...
+2026-05-26 08:54:27.045 | INFO     | yamain.common.util:extract_archive:149 - extract [/data/build/calib_kv_long/v_spk_4.tar.gz] to [/data/build/axmodel_kv_long_lm_allfcu16_npu3/quant/dataset/v_spk_4]...
+2026-05-26 08:54:27.062 | INFO     | yamain.common.util:extract_archive:149 - extract [/data/build/calib_kv_long/k_text_5.tar.gz] to [/data/build/axmodel_kv_long_lm_allfcu16_npu3/quant/dataset/k_text_5]...
+2026-05-26 08:54:27.219 | INFO     | yamain.common.util:extract_archive:149 - extract [/data/build/calib_kv_long/v_text_5.tar.gz] to [/data/build/axmodel_kv_long_lm_allfcu16_npu3/quant/dataset/v_text_5]...
+2026-05-26 08:54:27.376 | INFO     | yamain.common.util:extract_archive:149 - extract [/data/build/calib_kv_long/k_spk_5.tar.gz] to [/data/build/axmodel_kv_long_lm_allfcu16_npu3/quant/dataset/k_spk_5]...
+2026-05-26 08:54:27.393 | INFO     | yamain.common.util:extract_archive:149 - extract [/data/build/calib_kv_long/v_spk_5.tar.gz] to [/data/build/axmodel_kv_long_lm_allfcu16_npu3/quant/dataset/v_spk_5]...
+2026-05-26 08:54:27.410 | INFO     | yamain.common.util:extract_archive:149 - extract [/data/build/calib_kv_long/k_text_6.tar.gz] to [/data/build/axmodel_kv_long_lm_allfcu16_npu3/quant/dataset/k_text_6]...
+2026-05-26 08:54:27.567 | INFO     | yamain.common.util:extract_archive:149 - extract [/data/build/calib_kv_long/v_text_6.tar.gz] to [/data/build/axmodel_kv_long_lm_allfcu16_npu3/quant/dataset/v_text_6]...
+2026-05-26 08:54:27.725 | INFO     | yamain.common.util:extract_archive:149 - extract [/data/build/calib_kv_long/k_spk_6.tar.gz] to [/data/build/axmodel_kv_long_lm_allfcu16_npu3/quant/dataset/k_spk_6]...
+2026-05-26 08:54:27.741 | INFO     | yamain.common.util:extract_archive:149 - extract [/data/build/calib_kv_long/v_spk_6.tar.gz] to [/data/build/axmodel_kv_long_lm_allfcu16_npu3/quant/dataset/v_spk_6]...
+2026-05-26 08:54:27.758 | INFO     | yamain.common.util:extract_archive:149 - extract [/data/build/calib_kv_long/k_text_7.tar.gz] to [/data/build/axmodel_kv_long_lm_allfcu16_npu3/quant/dataset/k_text_7]...
+2026-05-26 08:54:27.917 | INFO     | yamain.common.util:extract_archive:149 - extract [/data/build/calib_kv_long/v_text_7.tar.gz] to [/data/build/axmodel_kv_long_lm_allfcu16_npu3/quant/dataset/v_text_7]...
+2026-05-26 08:54:28.074 | INFO     | yamain.common.util:extract_archive:149 - extract [/data/build/calib_kv_long/k_spk_7.tar.gz] to [/data/build/axmodel_kv_long_lm_allfcu16_npu3/quant/dataset/k_spk_7]...
+2026-05-26 08:54:28.091 | INFO     | yamain.common.util:extract_archive:149 - extract [/data/build/calib_kv_long/v_spk_7.tar.gz] to [/data/build/axmodel_kv_long_lm_allfcu16_npu3/quant/dataset/v_spk_7]...
+2026-05-26 08:54:28.108 | INFO     | yamain.common.util:extract_archive:149 - extract [/data/build/calib_kv_long/k_text_8.tar.gz] to [/data/build/axmodel_kv_long_lm_allfcu16_npu3/quant/dataset/k_text_8]...
+2026-05-26 08:54:28.268 | INFO     | yamain.common.util:extract_archive:149 - extract [/data/build/calib_kv_long/v_text_8.tar.gz] to [/data/build/axmodel_kv_long_lm_allfcu16_npu3/quant/dataset/v_text_8]...
+2026-05-26 08:54:28.425 | INFO     | yamain.common.util:extract_archive:149 - extract [/data/build/calib_kv_long/k_spk_8.tar.gz] to [/data/build/axmodel_kv_long_lm_allfcu16_npu3/quant/dataset/k_spk_8]...
+2026-05-26 08:54:28.442 | INFO     | yamain.common.util:extract_archive:149 - extract [/data/build/calib_kv_long/v_spk_8.tar.gz] to [/data/build/axmodel_kv_long_lm_allfcu16_npu3/quant/dataset/v_spk_8]...
+2026-05-26 08:54:28.459 | INFO     | yamain.common.util:extract_archive:149 - extract [/data/build/calib_kv_long/k_text_9.tar.gz] to [/data/build/axmodel_kv_long_lm_allfcu16_npu3/quant/dataset/k_text_9]...
+2026-05-26 08:54:28.617 | INFO     | yamain.common.util:extract_archive:149 - extract [/data/build/calib_kv_long/v_text_9.tar.gz] to [/data/build/axmodel_kv_long_lm_allfcu16_npu3/quant/dataset/v_text_9]...
+2026-05-26 08:54:28.775 | INFO     | yamain.common.util:extract_archive:149 - extract [/data/build/calib_kv_long/k_spk_9.tar.gz] to [/data/build/axmodel_kv_long_lm_allfcu16_npu3/quant/dataset/k_spk_9]...
+2026-05-26 08:54:28.792 | INFO     | yamain.common.util:extract_archive:149 - extract [/data/build/calib_kv_long/v_spk_9.tar.gz] to [/data/build/axmodel_kv_long_lm_allfcu16_npu3/quant/dataset/v_spk_9]...
+2026-05-26 08:54:28.811 | INFO     | yamain.common.util:extract_archive:149 - extract [/data/build/calib_kv_long/k_text_10.tar.gz] to [/data/build/axmodel_kv_long_lm_allfcu16_npu3/quant/dataset/k_text_10]...
+2026-05-26 08:54:28.969 | INFO     | yamain.common.util:extract_archive:149 - extract [/data/build/calib_kv_long/v_text_10.tar.gz] to [/data/build/axmodel_kv_long_lm_allfcu16_npu3/quant/dataset/v_text_10]...
+2026-05-26 08:54:29.127 | INFO     | yamain.common.util:extract_archive:149 - extract [/data/build/calib_kv_long/k_spk_10.tar.gz] to [/data/build/axmodel_kv_long_lm_allfcu16_npu3/quant/dataset/k_spk_10]...
+2026-05-26 08:54:29.144 | INFO     | yamain.common.util:extract_archive:149 - extract [/data/build/calib_kv_long/v_spk_10.tar.gz] to [/data/build/axmodel_kv_long_lm_allfcu16_npu3/quant/dataset/v_spk_10]...
+2026-05-26 08:54:29.161 | INFO     | yamain.common.util:extract_archive:149 - extract [/data/build/calib_kv_long/k_text_11.tar.gz] to [/data/build/axmodel_kv_long_lm_allfcu16_npu3/quant/dataset/k_text_11]...
+2026-05-26 08:54:29.319 | INFO     | yamain.common.util:extract_archive:149 - extract [/data/build/calib_kv_long/v_text_11.tar.gz] to [/data/build/axmodel_kv_long_lm_allfcu16_npu3/quant/dataset/v_text_11]...
+2026-05-26 08:54:29.484 | INFO     | yamain.common.util:extract_archive:149 - extract [/data/build/calib_kv_long/k_spk_11.tar.gz] to [/data/build/axmodel_kv_long_lm_allfcu16_npu3/quant/dataset/k_spk_11]...
+2026-05-26 08:54:29.504 | INFO     | yamain.common.util:extract_archive:149 - extract [/data/build/calib_kv_long/v_spk_11.tar.gz] to [/data/build/axmodel_kv_long_lm_allfcu16_npu3/quant/dataset/v_spk_11]...
+2026-05-26 08:54:29.577 | INFO     | yamain.common.util:extract_archive:149 - extract [/data/build/calib_kv_long/latent_mask.tar.gz] to [/data/build/axmodel_kv_long_lm_allfcu16_npu3/quant/dataset/latent_mask]...
+2026-05-26 08:54:30.608 | INFO     | frontend.parsers.onnx_parser:parse_onnx_model_proto:87 - onnxslim...
++------------------+-----------------------------+-----------------------------+
+|    Model Name    |          OnnxModel          |          OnnxModel          |
++------------------+-----------------------------+-----------------------------+
+|    Model Info    | Op Set: 18 / IR Version: 10 | Op Set: 18 / IR Version: 10 |
++------------------+-----------------------------+-----------------------------+
+|     IN: x_t      |    float32: (1, 201, 32)    |    float32: (1, 201, 32)    |
+|      IN: t       |        float32: (1,)        |        float32: (1,)        |
+|  IN: text_mask   |       bool: (1, 256)        |       bool: (1, 256)        |
+| IN: speaker_mask |        bool: (1, 2)         |        bool: (1, 2)         |
+| IN: latent_mask  |       bool: (1, 201)        |       bool: (1, 201)        |
+|   IN: k_text_0   |  float32: (1, 256, 20, 64)  |  float32: (1, 256, 20, 64)  |
+|   IN: v_text_0   |  float32: (1, 256, 20, 64)  |  float32: (1, 256, 20, 64)  |
+|   IN: k_spk_0    |   float32: (1, 2, 20, 64)   |   float32: (1, 2, 20, 64)   |
+|   IN: v_spk_0    |   float32: (1, 2, 20, 64)   |   float32: (1, 2, 20, 64)   |
+|   IN: k_text_1   |  float32: (1, 256, 20, 64)  |  float32: (1, 256, 20, 64)  |
+|   IN: v_text_1   |  float32: (1, 256, 20, 64)  |  float32: (1, 256, 20, 64)  |
+|   IN: k_spk_1    |   float32: (1, 2, 20, 64)   |   float32: (1, 2, 20, 64)   |
+|   IN: v_spk_1    |   float32: (1, 2, 20, 64)   |   float32: (1, 2, 20, 64)   |
+|   IN: k_text_2   |  float32: (1, 256, 20, 64)  |  float32: (1, 256, 20, 64)  |
+|   IN: v_text_2   |  float32: (1, 256, 20, 64)  |  float32: (1, 256, 20, 64)  |
+|   IN: k_spk_2    |   float32: (1, 2, 20, 64)   |   float32: (1, 2, 20, 64)   |
+|   IN: v_spk_2    |   float32: (1, 2, 20, 64)   |   float32: (1, 2, 20, 64)   |
+|   IN: k_text_3   |  float32: (1, 256, 20, 64)  |  float32: (1, 256, 20, 64)  |
+|   IN: v_text_3   |  float32: (1, 256, 20, 64)  |  float32: (1, 256, 20, 64)  |
+|   IN: k_spk_3    |   float32: (1, 2, 20, 64)   |   float32: (1, 2, 20, 64)   |
+|   IN: v_spk_3    |   float32: (1, 2, 20, 64)   |   float32: (1, 2, 20, 64)   |
+|   IN: k_text_4   |  float32: (1, 256, 20, 64)  |  float32: (1, 256, 20, 64)  |
+|   IN: v_text_4   |  float32: (1, 256, 20, 64)  |  float32: (1, 256, 20, 64)  |
+|   IN: k_spk_4    |   float32: (1, 2, 20, 64)   |   float32: (1, 2, 20, 64)   |
+|   IN: v_spk_4    |   float32: (1, 2, 20, 64)   |   float32: (1, 2, 20, 64)   |
+|   IN: k_text_5   |  float32: (1, 256, 20, 64)  |  float32: (1, 256, 20, 64)  |
+|   IN: v_text_5   |  float32: (1, 256, 20, 64)  |  float32: (1, 256, 20, 64)  |
+|   IN: k_spk_5    |   float32: (1, 2, 20, 64)   |   float32: (1, 2, 20, 64)   |
+|   IN: v_spk_5    |   float32: (1, 2, 20, 64)   |   float32: (1, 2, 20, 64)   |
+|   IN: k_text_6   |  float32: (1, 256, 20, 64)  |  float32: (1, 256, 20, 64)  |
+|   IN: v_text_6   |  float32: (1, 256, 20, 64)  |  float32: (1, 256, 20, 64)  |
+|   IN: k_spk_6    |   float32: (1, 2, 20, 64)   |   float32: (1, 2, 20, 64)   |
+|   IN: v_spk_6    |   float32: (1, 2, 20, 64)   |   float32: (1, 2, 20, 64)   |
+|   IN: k_text_7   |  float32: (1, 256, 20, 64)  |  float32: (1, 256, 20, 64)  |
+|   IN: v_text_7   |  float32: (1, 256, 20, 64)  |  float32: (1, 256, 20, 64)  |
+|   IN: k_spk_7    |   float32: (1, 2, 20, 64)   |   float32: (1, 2, 20, 64)   |
+|   IN: v_spk_7    |   float32: (1, 2, 20, 64)   |   float32: (1, 2, 20, 64)   |
+|   IN: k_text_8   |  float32: (1, 256, 20, 64)  |  float32: (1, 256, 20, 64)  |
+|   IN: v_text_8   |  float32: (1, 256, 20, 64)  |  float32: (1, 256, 20, 64)  |
+|   IN: k_spk_8    |   float32: (1, 2, 20, 64)   |   float32: (1, 2, 20, 64)   |
+|   IN: v_spk_8    |   float32: (1, 2, 20, 64)   |   float32: (1, 2, 20, 64)   |
+|   IN: k_text_9   |  float32: (1, 256, 20, 64)  |  float32: (1, 256, 20, 64)  |
+|   IN: v_text_9   |  float32: (1, 256, 20, 64)  |  float32: (1, 256, 20, 64)  |
+|   IN: k_spk_9    |   float32: (1, 2, 20, 64)   |   float32: (1, 2, 20, 64)   |
+|   IN: v_spk_9    |   float32: (1, 2, 20, 64)   |   float32: (1, 2, 20, 64)   |
+|  IN: k_text_10   |  float32: (1, 256, 20, 64)  |  float32: (1, 256, 20, 64)  |
+|  IN: v_text_10   |  float32: (1, 256, 20, 64)  |  float32: (1, 256, 20, 64)  |
+|   IN: k_spk_10   |   float32: (1, 2, 20, 64)   |   float32: (1, 2, 20, 64)   |
+|   IN: v_spk_10   |   float32: (1, 2, 20, 64)   |   float32: (1, 2, 20, 64)   |
+|  IN: k_text_11   |  float32: (1, 256, 20, 64)  |  float32: (1, 256, 20, 64)  |
+|  IN: v_text_11   |  float32: (1, 256, 20, 64)  |  float32: (1, 256, 20, 64)  |
+|   IN: k_spk_11   |   float32: (1, 2, 20, 64)   |   float32: (1, 2, 20, 64)   |
+|   IN: v_spk_11   |   float32: (1, 2, 20, 64)   |   float32: (1, 2, 20, 64)   |
+|   OUT: v_pred    |    float32: (1, 201, 32)    |    float32: (1, 201, 32)    |
++------------------+-----------------------------+-----------------------------+
+|       Add        |             303             |             229             |
+|       Cast       |              1              |              1              |
+|      Concat      |             74              |             74              |
+|       Cos        |              1              |              1              |
+|       Div        |             49              |             49              |
+|      Gather      |             50              |             48              |
+|       Gemm       |              3              |             77              |
+|      MatMul      |             266             |             192             |
+|       Mul        |             285             |             285             |
+|       Not        |              1              |              1              |
+|    ReduceMean    |             49              |             49              |
+|     Reshape      |             120             |             268             |
+|     Sigmoid      |             29              |             29              |
+|       Sin        |              1              |              1              |
+|     Softmax      |             12              |             12              |
+|      Split       |             25              |             25              |
+|       Sqrt       |             49              |             49              |
+|       Sub        |             24              |             24              |
+|       Tanh       |             24              |             24              |
+|    Transpose     |             60              |             60              |
+|    Unsqueeze     |             53              |             51              |
++------------------+-----------------------------+-----------------------------+
+|    Model Size    |           1.16 GB           |           1.16 GB           |
++------------------+-----------------------------+-----------------------------+
+|   Elapsed Time   |                          2.95 s                           |
++------------------+-----------------------------+-----------------------------+
+Building onnx ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% 0:00:06
+2026-05-26 08:55:02.799 | INFO     | yamain.command.build:quant:867 - save optimized onnx to [/data/build/axmodel_kv_long_lm_allfcu16_npu3/frontend/optimized.onnx]
+[Warning]Layer_config configs same optype, please check: ['Sub']
+                               Quant Config Table                               
+┏━━━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━┳━━━━━┓
+┃            ┃            ┃ Dataset    ┃             ┃ Tensor     ┃      ┃     ┃
+┃ Input      ┃ Shape      ┃ Directory  ┃ Data Format ┃ Format     ┃ Mean ┃ Std ┃
+┡━━━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━╇━━━━━┩
+│ x_t        │ [1, 201,   │ /data/bui… │ Numpy       │            │ []   │ []  │
+│            │ 32]        │            │             │            │      │     │
+├────────────┼────────────┼────────────┼─────────────┼────────────┼──────┼─────┤
+│ t          │ [1]        │ /data/bui… │ Numpy       │            │ []   │ []  │
+├────────────┼────────────┼────────────┼─────────────┼────────────┼──────┼─────┤
+│ text_mask  │ [1, 256]   │ /data/bui… │ Numpy       │            │ []   │ []  │
+├────────────┼────────────┼────────────┼─────────────┼────────────┼──────┼─────┤
+│ speaker_m… │ [1, 2]     │ /data/bui… │ Numpy       │            │ []   │ []  │
+├────────────┼────────────┼────────────┼─────────────┼────────────┼──────┼─────┤
+│ latent_ma… │ [1, 201]   │ /data/bui… │ Numpy       │            │ []   │ []  │
+├────────────┼────────────┼────────────┼─────────────┼────────────┼──────┼─────┤
+│ k_text_0   │ [1, 256,   │ /data/bui… │ Numpy       │            │ []   │ []  │
+│            │ 20, 64]    │            │             │            │      │     │
+├────────────┼────────────┼────────────┼─────────────┼────────────┼──────┼─────┤
+│ v_text_0   │ [1, 256,   │ /data/bui… │ Numpy       │            │ []   │ []  │
+│            │ 20, 64]    │            │             │            │      │     │
+├────────────┼────────────┼────────────┼─────────────┼────────────┼──────┼─────┤
+│ k_spk_0    │ [1, 2, 20, │ /data/bui… │ Numpy       │            │ []   │ []  │
+│            │ 64]        │            │             │            │      │     │
+├────────────┼────────────┼────────────┼─────────────┼────────────┼──────┼─────┤
+│ v_spk_0    │ [1, 2, 20, │ /data/bui… │ Numpy       │            │ []   │ []  │
+│            │ 64]        │            │             │            │      │     │
+├────────────┼────────────┼────────────┼─────────────┼────────────┼──────┼─────┤
+│ k_text_1   │ [1, 256,   │ /data/bui… │ Numpy       │            │ []   │ []  │
+│            │ 20, 64]    │            │             │            │      │     │
+├────────────┼────────────┼────────────┼─────────────┼────────────┼──────┼─────┤
+│ v_text_1   │ [1, 256,   │ /data/bui… │ Numpy       │            │ []   │ []  │
+│            │ 20, 64]    │            │             │            │      │     │
+├────────────┼────────────┼────────────┼─────────────┼────────────┼──────┼─────┤
+│ k_spk_1    │ [1, 2, 20, │ /data/bui… │ Numpy       │            │ []   │ []  │
+│            │ 64]        │            │             │            │      │     │
+├────────────┼────────────┼────────────┼─────────────┼────────────┼──────┼─────┤
+│ v_spk_1    │ [1, 2, 20, │ /data/bui… │ Numpy       │            │ []   │ []  │
+│            │ 64]        │            │             │            │      │     │
+├────────────┼────────────┼────────────┼─────────────┼────────────┼──────┼─────┤
+│ k_text_2   │ [1, 256,   │ /data/bui… │ Numpy       │            │ []   │ []  │
+│            │ 20, 64]    │            │             │            │      │     │
+├────────────┼────────────┼────────────┼─────────────┼────────────┼──────┼─────┤
+│ v_text_2   │ [1, 256,   │ /data/bui… │ Numpy       │            │ []   │ []  │
+│            │ 20, 64]    │            │             │            │      │     │
+├────────────┼────────────┼────────────┼─────────────┼────────────┼──────┼─────┤
+│ k_spk_2    │ [1, 2, 20, │ /data/bui… │ Numpy       │            │ []   │ []  │
+│            │ 64]        │            │             │            │      │     │
+├────────────┼────────────┼────────────┼─────────────┼────────────┼──────┼─────┤
+│ v_spk_2    │ [1, 2, 20, │ /data/bui… │ Numpy       │            │ []   │ []  │
+│            │ 64]        │            │             │            │      │     │
+├────────────┼────────────┼────────────┼─────────────┼────────────┼──────┼─────┤
+│ k_text_3   │ [1, 256,   │ /data/bui… │ Numpy       │            │ []   │ []  │
+│            │ 20, 64]    │            │             │            │      │     │
+├────────────┼────────────┼────────────┼─────────────┼────────────┼──────┼─────┤
+│ v_text_3   │ [1, 256,   │ /data/bui… │ Numpy       │            │ []   │ []  │
+│            │ 20, 64]    │            │             │            │      │     │
+├────────────┼────────────┼────────────┼─────────────┼────────────┼──────┼─────┤
+│ k_spk_3    │ [1, 2, 20, │ /data/bui… │ Numpy       │            │ []   │ []  │
+│            │ 64]        │            │             │            │      │     │
+├────────────┼────────────┼────────────┼─────────────┼────────────┼──────┼─────┤
+│ v_spk_3    │ [1, 2, 20, │ /data/bui… │ Numpy       │            │ []   │ []  │
+│            │ 64]        │            │             │            │      │     │
+├────────────┼────────────┼────────────┼─────────────┼────────────┼──────┼─────┤
+│ k_text_4   │ [1, 256,   │ /data/bui… │ Numpy       │            │ []   │ []  │
+│            │ 20, 64]    │            │             │            │      │     │
+├────────────┼────────────┼────────────┼─────────────┼────────────┼──────┼─────┤
+│ v_text_4   │ [1, 256,   │ /data/bui… │ Numpy       │            │ []   │ []  │
+│            │ 20, 64]    │            │             │            │      │     │
+├────────────┼────────────┼────────────┼─────────────┼────────────┼──────┼─────┤
+│ k_spk_4    │ [1, 2, 20, │ /data/bui… │ Numpy       │            │ []   │ []  │
+│            │ 64]        │            │             │            │      │     │
+├────────────┼────────────┼────────────┼─────────────┼────────────┼──────┼─────┤
+│ v_spk_4    │ [1, 2, 20, │ /data/bui… │ Numpy       │            │ []   │ []  │
+│            │ 64]        │            │             │            │      │     │
+├────────────┼────────────┼────────────┼─────────────┼────────────┼──────┼─────┤
+│ k_text_5   │ [1, 256,   │ /data/bui… │ Numpy       │            │ []   │ []  │
+│            │ 20, 64]    │            │             │            │      │     │
+├────────────┼────────────┼────────────┼─────────────┼────────────┼──────┼─────┤
+│ v_text_5   │ [1, 256,   │ /data/bui… │ Numpy       │            │ []   │ []  │
+│            │ 20, 64]    │            │             │            │      │     │
+├────────────┼────────────┼────────────┼─────────────┼────────────┼──────┼─────┤
+│ k_spk_5    │ [1, 2, 20, │ /data/bui… │ Numpy       │            │ []   │ []  │
+│            │ 64]        │            │             │            │      │     │
+├────────────┼────────────┼────────────┼─────────────┼────────────┼──────┼─────┤
+│ v_spk_5    │ [1, 2, 20, │ /data/bui… │ Numpy       │            │ []   │ []  │
+│            │ 64]        │            │             │            │      │     │
+├────────────┼────────────┼────────────┼─────────────┼────────────┼──────┼─────┤
+│ k_text_6   │ [1, 256,   │ /data/bui… │ Numpy       │            │ []   │ []  │
+│            │ 20, 64]    │            │             │            │      │     │
+├────────────┼────────────┼────────────┼─────────────┼────────────┼──────┼─────┤
+│ v_text_6   │ [1, 256,   │ /data/bui… │ Numpy       │            │ []   │ []  │
+│            │ 20, 64]    │            │             │            │      │     │
+├────────────┼────────────┼────────────┼─────────────┼────────────┼──────┼─────┤
+│ k_spk_6    │ [1, 2, 20, │ /data/bui… │ Numpy       │            │ []   │ []  │
+│            │ 64]        │            │             │            │      │     │
+├────────────┼────────────┼────────────┼─────────────┼────────────┼──────┼─────┤
+│ v_spk_6    │ [1, 2, 20, │ /data/bui… │ Numpy       │            │ []   │ []  │
+│            │ 64]        │            │             │            │      │     │
+├────────────┼────────────┼────────────┼─────────────┼────────────┼──────┼─────┤
+│ k_text_7   │ [1, 256,   │ /data/bui… │ Numpy       │            │ []   │ []  │
+│            │ 20, 64]    │            │             │            │      │     │
+├────────────┼────────────┼────────────┼─────────────┼────────────┼──────┼─────┤
+│ v_text_7   │ [1, 256,   │ /data/bui… │ Numpy       │            │ []   │ []  │
+│            │ 20, 64]    │            │             │            │      │     │
+├────────────┼────────────┼────────────┼─────────────┼────────────┼──────┼─────┤
+│ k_spk_7    │ [1, 2, 20, │ /data/bui… │ Numpy       │            │ []   │ []  │
+│            │ 64]        │            │             │            │      │     │
+├────────────┼────────────┼────────────┼─────────────┼────────────┼──────┼─────┤
+│ v_spk_7    │ [1, 2, 20, │ /data/bui… │ Numpy       │            │ []   │ []  │
+│            │ 64]        │            │             │            │      │     │
+├────────────┼────────────┼────────────┼─────────────┼────────────┼──────┼─────┤
+│ k_text_8   │ [1, 256,   │ /data/bui… │ Numpy       │            │ []   │ []  │
+│            │ 20, 64]    │            │             │            │      │     │
+├────────────┼────────────┼────────────┼─────────────┼────────────┼──────┼─────┤
+│ v_text_8   │ [1, 256,   │ /data/bui… │ Numpy       │            │ []   │ []  │
+│            │ 20, 64]    │            │             │            │      │     │
+├────────────┼────────────┼────────────┼─────────────┼────────────┼──────┼─────┤
+│ k_spk_8    │ [1, 2, 20, │ /data/bui… │ Numpy       │            │ []   │ []  │
+│            │ 64]        │            │             │            │      │     │
+├────────────┼────────────┼────────────┼─────────────┼────────────┼──────┼─────┤
+│ v_spk_8    │ [1, 2, 20, │ /data/bui… │ Numpy       │            │ []   │ []  │
+│            │ 64]        │            │             │            │      │     │
+├────────────┼────────────┼────────────┼─────────────┼────────────┼──────┼─────┤
+│ k_text_9   │ [1, 256,   │ /data/bui… │ Numpy       │            │ []   │ []  │
+│            │ 20, 64]    │            │             │            │      │     │
+├────────────┼────────────┼────────────┼─────────────┼────────────┼──────┼─────┤
+│ v_text_9   │ [1, 256,   │ /data/bui… │ Numpy       │            │ []   │ []  │
+│            │ 20, 64]    │            │             │            │      │     │
+├────────────┼────────────┼────────────┼─────────────┼────────────┼──────┼─────┤
+│ k_spk_9    │ [1, 2, 20, │ /data/bui… │ Numpy       │            │ []   │ []  │
+│            │ 64]        │            │             │            │      │     │
+├────────────┼────────────┼────────────┼─────────────┼────────────┼──────┼─────┤
+│ v_spk_9    │ [1, 2, 20, │ /data/bui… │ Numpy       │            │ []   │ []  │
+│            │ 64]        │            │             │            │      │     │
+├────────────┼────────────┼────────────┼─────────────┼────────────┼──────┼─────┤
+│ k_text_10  │ [1, 256,   │ /data/bui… │ Numpy       │            │ []   │ []  │
+│            │ 20, 64]    │            │             │            │      │     │
+├────────────┼────────────┼────────────┼─────────────┼────────────┼──────┼─────┤
+│ v_text_10  │ [1, 256,   │ /data/bui… │ Numpy       │            │ []   │ []  │
+│            │ 20, 64]    │            │             │            │      │     │
+├────────────┼────────────┼────────────┼─────────────┼────────────┼──────┼─────┤
+│ k_spk_10   │ [1, 2, 20, │ /data/bui… │ Numpy       │            │ []   │ []  │
+│            │ 64]        │            │             │            │      │     │
+├────────────┼────────────┼────────────┼─────────────┼────────────┼──────┼─────┤
+│ v_spk_10   │ [1, 2, 20, │ /data/bui… │ Numpy       │            │ []   │ []  │
+│            │ 64]        │            │             │            │      │     │
+├────────────┼────────────┼────────────┼─────────────┼────────────┼──────┼─────┤
+│ k_text_11  │ [1, 256,   │ /data/bui… │ Numpy       │            │ []   │ []  │
+│            │ 20, 64]    │            │             │            │      │     │
+├────────────┼────────────┼────────────┼─────────────┼────────────┼──────┼─────┤
+│ v_text_11  │ [1, 256,   │ /data/bui… │ Numpy       │            │ []   │ []  │
+│            │ 20, 64]    │            │             │            │      │     │
+├────────────┼────────────┼────────────┼─────────────┼────────────┼──────┼─────┤
+│ k_spk_11   │ [1, 2, 20, │ /data/bui… │ Numpy       │            │ []   │ []  │
+│            │ 64]        │            │             │            │      │     │
+├────────────┼────────────┼────────────┼─────────────┼────────────┼──────┼─────┤
+│ v_spk_11   │ [1, 2, 20, │ /data/bui… │ Numpy       │            │ []   │ []  │
+│            │ 64]        │            │             │            │      │     │
+└────────────┴────────────┴────────────┴─────────────┴────────────┴──────┴─────┘
+Quantization calibration will be executed on cuda:0
+                             Layer Config Table                             
+┏━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┓
+┃ Op Type        ┃ Layer Name                 ┃ Input Dtype ┃ Output Dtype ┃
+┡━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━╇━━━━━━━━━━━━━━┩
+│ FullyConnected │ op_120:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_176:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_55:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_152:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_47:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_118:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_247:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_81:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_126:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_51:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_258:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_18:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_203:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_138:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_56:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_160:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_158:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_170:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_41:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_213:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_240:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_60:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_44:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_164:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_210:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ Gemm           │ node_linear_1              │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_231:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_165:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_149:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_46:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_95:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_168:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_70:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_129:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_242:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_80:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_42:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_58:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_148:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_48:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_63:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_246:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_245:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_39:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_159:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_103:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_130:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_162:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_202:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_255:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_219:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_68:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_209:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_102:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_217:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_228:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_157:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_180:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_233:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_221:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_241:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_84:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_99:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_85:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_214:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_79:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_35:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_259:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_36:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_33:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_106:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_198:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_235:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_53:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_175:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_21:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_184:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_117:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_239:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_171:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_146:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_132:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_234:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_150:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_136:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_119:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_237:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_161:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_191:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_52:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_96:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_216:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_174:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_173:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_72:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_23:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_26:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_61:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_40:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_153:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_127:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_108:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_253:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_182:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_192:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_45:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_29:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_133:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ Gemm           │ node_linear_2              │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_37:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_114:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_169:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_183:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_34:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_195:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_248:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_172:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_196:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_185:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_109:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_50:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_207:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_90:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_156:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_67:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_140:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_107:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_208:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_73:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_257:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_230:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_111:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_91:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_76:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_249:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_122:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_32:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_145:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_147:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_194:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_94:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_211:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_27:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_154:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_142:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_43:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_112:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_222:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_125:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_62:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_199:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_19:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_97:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_251:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_24:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_220:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_227:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_74:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_218:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_65:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_87:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_229:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_181:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_101:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_252:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_226:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_144:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_141:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_151:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_123:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_212:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_59:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_100:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_64:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_190:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_22:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_115:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_124:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_236:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_215:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_38:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_93:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_83:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_188:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_186:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ Gemm           │ node_linear                │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_244:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_135:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_200:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_197:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_232:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_54:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_121:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_88:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_205:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_69:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_113:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_82:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_89:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_116:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_201:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_179:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_66:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_225:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_110:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_92:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_98:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_105:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_86:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_28:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_206:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_223:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_49:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_204:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_139:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_137:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_177:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_187:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_78:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_155:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_243:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_75:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_57:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_25:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_256:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_143:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_189:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_77:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_104:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_238:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_224:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_134:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_20:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_31:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_250:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_128:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_163:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_178:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_30:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_131:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_166:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_167:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_71:onnx.FullyConnected  │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_254:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ FullyConnected │ op_193:onnx.FullyConnected │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ Cos            │ node_cos                   │ U16         │ U16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ MatMul         │ /                          │ S16         │ S16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ Gemm           │ /                          │ S16         │ S16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ Add            │ /                          │ S16         │ S16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ Mul            │ /                          │ S16         │ S16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ Sub            │ /                          │ S16         │ S16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ Div            │ /                          │ S16         │ S16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ Softmax        │ /                          │ S16         │ S16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ Sigmoid        │ /                          │ S16         │ S16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ Tanh           │ /                          │ S16         │ S16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ ReduceMean     │ /                          │ S16         │ S16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ Sqrt           │ /                          │ S16         │ S16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ Pow            │ /                          │ S16         │ S16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ Erf            │ /                          │ S16         │ S16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ Concat         │ /                          │ S16         │ S16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ Gather         │ /                          │ S16         │ S16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ Transpose      │ /                          │ S16         │ S16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ Reshape        │ /                          │ S16         │ S16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ Cos            │ /                          │ S16         │ S16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ Sin            │ /                          │ S16         │ S16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ Slice          │ /                          │ S16         │ S16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ Split          │ /                          │ S16         │ S16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ Where          │ /                          │ S16         │ S16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ Cast           │ /                          │ S16         │ S16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ Neg            │ /                          │ S16         │ S16          │
+├────────────────┼────────────────────────────┼─────────────┼──────────────┤
+│ Sub            │ /                          │ S16         │ S16          │
+└────────────────┴────────────────────────────┴─────────────┴──────────────┘
+Transformer optimize level: 0
+<frozen quant.ppq.executor.op.torch.default>:1415: UserWarning: Using a non-tuple sequence for multidimensional indexing is deprecated and will be changed in pytorch 2.9; use x[tuple(seq)] instead of x[seq]. In pytorch 2.9 this will be interpreted as tensor index, x[torch.tensor(seq)], which will result either in an error or a different result (Triggered internally at /pytorch/torch/csrc/autograd/python_variable_indexing.cpp:347.)
+[Info]set op which contains int32/int64 inputs or special op-type to NON-QUANTIZED automatically: ['node_Unsqueeze_2164', 'node_cat_5']
+Statistics Inf tensor:   0%|          | 0/1 [00:00<?, ?it/s]Statistics Inf tensor: 100%|██████████| 1/1 [00:00<00:00,  2.68it/s]Statistics Inf tensor: 100%|██████████| 1/1 [00:00<00:00,  2.68it/s]
+[Info]Auto set ['node_mean_48'] to float which contain inf or big range(big than 10^6) in inputs
+[Info]These op contains very big range, maybe cause low precision: ['node_mul_2', 'node_cos', 'node_sin', 'op_288:onnx.Mul', 'node_mul_17', 'node_Add_152', 'node_Softmax_153', 'node_mean_3', 'node_mean_4', 'node_Add_298', 'node_Softmax_299', 'node_mean_7', 'node_mean_8', 'node_Add_444', 'node_Softmax_445', 'node_mean_11', 'node_mean_12', 'node_Add_590', 'node_Softmax_591', 'node_mean_15', 'node_mean_16', 'node_Add_736', 'node_Softmax_737', 'node_mean_19', 'node_mean_20', 'node_Add_882', 'node_Softmax_883', 'node_mean_23', 'node_mean_24', 'node_mean_26', 'node_Add_1028', 'node_Softmax_1029', 'node_mean_27', 'node_mean_28', 'node_Add_1174', 'node_Softmax_1175', 'node_mean_31', 'node_mean_32', 'node_Add_1320', 'node_Softmax_1321', 'node_mean_35', 'node_mean_36', 'node_mean_38', 'node_Add_1466', 'node_Softmax_1467', 'node_mean_39', 'node_mul_213', 'node_mean_40', 'node_div_41', 'node_mean_41', 'node_mean_42', 'node_Add_1612', 'node_Softmax_1613', 'node_add_190', 'node_mul_230', 'node_mean_43', 'node_div_44', 'node_add_197', 'node_mul_234', 'node_mean_44', 'node_div_45', 'node_mean_45', 'node_mean_46', 'node_add_205', 'node_sqrt_46', 'op_290:onnx.Mul', 'node_Add_1758', 'node_Softmax_1759', 'node_mul_250', 'node_add_208', 'node_mul_251', 'node_mean_47', 'node_add_212', 'node_sqrt_47', 'node_div_48', 'node_mul_254', 'node_add_215', 'node_mul_255', 'node_add_216', 'node_sqrt_48', 'node_div_49']
+[08:55:13] AX Set Float Op Table Pass Running ...         
+[08:55:14] AX Set MixPrecision Pass Running ...           
+[08:55:15] AX Set LN Quant dtype Quant Pass Running ...   
+[08:55:15] AX Refine Operation Config Pass Running ...    
+[08:55:15] AX Tanh Operation Format Pass Running ...      
+[08:55:15] AX Confused Op Refine Pass Running ...         
+[08:55:15] AX Quantization Fusion Pass Running ...        
+[08:55:15] AX Quantization Simplify Pass Running ...      
+[08:55:15] AX Parameter Quantization Pass Running ...     
+[08:55:29] AX Runtime Calibration Pass Running ...        
+Calibration Progress(Phase 1):   0%|          | 0/32 [00:00<?, ?it/s]Calibration Progress(Phase 1):   3%|▎         | 1/32 [00:00<00:27,  1.12it/s]Calibration Progress(Phase 1):   6%|▋         | 2/32 [00:01<00:24,  1.21it/s]Calibration Progress(Phase 1):   9%|▉         | 3/32 [00:02<00:23,  1.25it/s]Calibration Progress(Phase 1):  12%|█▎        | 4/32 [00:03<00:21,  1.27it/s]Calibration Progress(Phase 1):  16%|█▌        | 5/32 [00:03<00:21,  1.28it/s]Calibration Progress(Phase 1):  19%|█▉        | 6/32 [00:04<00:20,  1.29it/s]Calibration Progress(Phase 1):  22%|██▏       | 7/32 [00:05<00:19,  1.29it/s]Calibration Progress(Phase 1):  25%|██▌       | 8/32 [00:06<00:18,  1.29it/s]Calibration Progress(Phase 1):  28%|██▊       | 9/32 [00:07<00:17,  1.30it/s]Calibration Progress(Phase 1):  31%|███▏      | 10/32 [00:07<00:16,  1.30it/s]Calibration Progress(Phase 1):  34%|███▍      | 11/32 [00:08<00:16,  1.31it/s]Calibration Progress(Phase 1):  38%|███▊      | 12/32 [00:09<00:15,  1.28it/s]Calibration Progress(Phase 1):  41%|████      | 13/32 [00:10<00:14,  1.30it/s]Calibration Progress(Phase 1):  44%|████▍     | 14/32 [00:10<00:13,  1.31it/s]Calibration Progress(Phase 1):  47%|████▋     | 15/32 [00:11<00:12,  1.32it/s]Calibration Progress(Phase 1):  50%|█████     | 16/32 [00:12<00:12,  1.32it/s]Calibration Progress(Phase 1):  53%|█████▎    | 17/32 [00:13<00:11,  1.32it/s]Calibration Progress(Phase 1):  56%|█████▋    | 18/32 [00:13<00:10,  1.32it/s]Calibration Progress(Phase 1):  59%|█████▉    | 19/32 [00:14<00:10,  1.29it/s]Calibration Progress(Phase 1):  62%|██████▎   | 20/32 [00:15<00:09,  1.31it/s]Calibration Progress(Phase 1):  66%|██████▌   | 21/32 [00:16<00:08,  1.33it/s]Calibration Progress(Phase 1):  69%|██████▉   | 22/32 [00:16<00:07,  1.33it/s]Calibration Progress(Phase 1):  72%|███████▏  | 23/32 [00:17<00:06,  1.33it/s]Calibration Progress(Phase 1):  75%|███████▌  | 24/32 [00:18<00:06,  1.32it/s]Calibration Progress(Phase 1):  78%|███████▊  | 25/32 [00:19<00:05,  1.32it/s]Calibration Progress(Phase 1):  81%|████████▏ | 26/32 [00:19<00:04,  1.33it/s]Calibration Progress(Phase 1):  84%|████████▍ | 27/32 [00:20<00:03,  1.31it/s]Calibration Progress(Phase 1):  88%|████████▊ | 28/32 [00:21<00:03,  1.32it/s]Calibration Progress(Phase 1):  91%|█████████ | 29/32 [00:22<00:02,  1.34it/s]Calibration Progress(Phase 1):  94%|█████████▍| 30/32 [00:22<00:01,  1.35it/s]Calibration Progress(Phase 1):  97%|█████████▋| 31/32 [00:23<00:00,  1.35it/s]Calibration Progress(Phase 1): 100%|██████████| 32/32 [00:24<00:00,  1.33it/s]Calibration Progress(Phase 1): 100%|██████████| 32/32 [00:24<00:00,  1.31it/s]
+[08:55:54] AX Quantization Alignment Pass Running ...     
+[08:55:54] AX Refine Int Parameter Pass Running ...       
+[08:55:55] AX Refine Scale Pass Running ...               
+[08:55:55] AX Passive Parameter Quantization Running ...  
+[08:55:55] AX Parameter Baking Pass Running ...           
+--------- Network Snapshot ---------
+Num of Op:                    [1336]
+Num of Quantized Op:          [1331]
+Num of Variable:              [2137]
+Num of Quantized Var:         [2130]
+------- Quantization Snapshot ------
+Num of Quant Config:          [3880]
+BAKED:                        [453]
+OVERLAPPED:                   [2039]
+ACTIVATED:                    [1120]
+SOI:                          [146]
+PASSIVE_BAKED:                [74]
+FP32:                         [48]
+Network Quantization Finished.
+[Warning]You are trying to link variable with operation, however Variable linear_3 has already linked with downstream op node_mul_3
+[Warning]You are trying to link variable with operation, however Variable view has already linked with downstream op node_mul_5
+[Warning]You are trying to link variable with operation, however Variable view_1 has already linked with downstream op node_mul_7
+[Warning]You are trying to link variable with operation, however Variable add_10 has already linked with downstream op node_mul_20
+[Warning]You are trying to link variable with operation, however Variable add_17 has already linked with downstream op node_mul_24
+[Warning]You are trying to link variable with operation, however Variable view_8 has already linked with downstream op node_mul_26
+[Warning]You are trying to link variable with operation, however Variable view_9 has already linked with downstream op node_mul_28
+[Warning]You are trying to link variable with operation, however Variable add_28 has already linked with downstream op node_mul_41
+[Warning]You are trying to link variable with operation, however Variable add_35 has already linked with downstream op node_mul_45
+[Warning]You are trying to link variable with operation, however Variable view_16 has already linked with downstream op node_mul_47
+[Warning]You are trying to link variable with operation, however Variable view_17 has already linked with downstream op node_mul_49
+[Warning]You are trying to link variable with operation, however Variable add_46 has already linked with downstream op node_mul_62
+[Warning]You are trying to link variable with operation, however Variable add_53 has already linked with downstream op node_mul_66
+[Warning]You are trying to link variable with operation, however Variable view_24 has already linked with downstream op node_mul_68
+[Warning]You are trying to link variable with operation, however Variable view_25 has already linked with downstream op node_mul_70
+[Warning]You are trying to link variable with operation, however Variable add_64 has already linked with downstream op node_mul_83
+[Warning]You are trying to link variable with operation, however Variable add_71 has already linked with downstream op node_mul_87
+[Warning]You are trying to link variable with operation, however Variable view_32 has already linked with downstream op node_mul_89
+[Warning]You are trying to link variable with operation, however Variable view_33 has already linked with downstream op node_mul_91
+[Warning]You are trying to link variable with operation, however Variable add_82 has already linked with downstream op node_mul_104
+[Warning]You are trying to link variable with operation, however Variable add_89 has already linked with downstream op node_mul_108
+[Warning]You are trying to link variable with operation, however Variable view_40 has already linked with downstream op node_mul_110
+[Warning]You are trying to link variable with operation, however Variable view_41 has already linked with downstream op node_mul_112
+[Warning]You are trying to link variable with operation, however Variable add_100 has already linked with downstream op node_mul_125
+[Warning]You are trying to link variable with operation, however Variable add_107 has already linked with downstream op node_mul_129
+[Warning]You are trying to link variable with operation, however Variable view_48 has already linked with downstream op node_mul_131
+[Warning]You are trying to link variable with operation, however Variable view_49 has already linked with downstream op node_mul_133
+[Warning]You are trying to link variable with operation, however Variable add_118 has already linked with downstream op node_mul_146
+[Warning]You are trying to link variable with operation, however Variable add_125 has already linked with downstream op node_mul_150
+[Warning]You are trying to link variable with operation, however Variable view_56 has already linked with downstream op node_mul_152
+[Warning]You are trying to link variable with operation, however Variable view_57 has already linked with downstream op node_mul_154
+[Warning]You are trying to link variable with operation, however Variable add_136 has already linked with downstream op node_mul_167
+[Warning]You are trying to link variable with operation, however Variable add_143 has already linked with downstream op node_mul_171
+[Warning]You are trying to link variable with operation, however Variable view_64 has already linked with downstream op node_mul_173
+[Warning]You are trying to link variable with operation, however Variable view_65 has already linked with downstream op node_mul_175
+[Warning]You are trying to link variable with operation, however Variable add_154 has already linked with downstream op node_mul_188
+[Warning]You are trying to link variable with operation, however Variable add_161 has already linked with downstream op node_mul_192
+[Warning]You are trying to link variable with operation, however Variable view_72 has already linked with downstream op node_mul_194
+[Warning]You are trying to link variable with operation, however Variable view_73 has already linked with downstream op node_mul_196
+[Warning]You are trying to link variable with operation, however Variable add_172 has already linked with downstream op node_mul_209
+[Warning]You are trying to link variable with operation, however Variable add_179 has already linked with downstream op node_mul_213
+[Warning]You are trying to link variable with operation, however Variable view_80 has already linked with downstream op node_mul_215
+[Warning]You are trying to link variable with operation, however Variable view_81 has already linked with downstream op node_mul_217
+[Warning]You are trying to link variable with operation, however Variable add_190 has already linked with downstream op node_mul_230
+[Warning]You are trying to link variable with operation, however Variable add_197 has already linked with downstream op node_mul_234
+[Warning]You are trying to link variable with operation, however Variable view_88 has already linked with downstream op node_mul_236
+[Warning]You are trying to link variable with operation, however Variable view_89 has already linked with downstream op node_mul_238
+[Warning]You are trying to link variable with operation, however Variable add_208 has already linked with downstream op node_mul_251
+[Warning]You are trying to link variable with operation, however Variable add_215 has already linked with downstream op node_mul_255
+Do quant optimization
+quant.axmodel export success: 
+	/data/build/axmodel_kv_long_lm_allfcu16_npu3/quant/quant_axmodel.onnx
+	/data/build/axmodel_kv_long_lm_allfcu16_npu3/quant/quant_axmodel.data
+===>export io data to folder: /data/build/axmodel_kv_long_lm_allfcu16_npu3/quant/debug/io
+Building native ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% 0:00:00
+2026-05-26 08:56:17.093 | INFO     | yamain.command.build:compile_ptq_model:1169 - group 0 compiler transformation
+2026-05-26 08:56:17.101 | WARNING  | yamain.command.load_model:post_process:633 - postprocess tensor [v_pred]
+2026-05-26 08:56:17.130 | INFO     | yamain.command.load_model:ir_compiler_transformation:828 - use quant data as gt input: x_t, float32, (1, 201, 32)
+2026-05-26 08:56:17.130 | INFO     | yamain.command.load_model:ir_compiler_transformation:828 - use quant data as gt input: t, float32, (1,)
+2026-05-26 08:56:17.130 | INFO     | yamain.command.load_model:ir_compiler_transformation:828 - use quant data as gt input: text_mask, uint8, (1, 256)
+2026-05-26 08:56:17.130 | INFO     | yamain.command.load_model:ir_compiler_transformation:828 - use quant data as gt input: speaker_mask, uint8, (1, 2)
+2026-05-26 08:56:17.130 | INFO     | yamain.command.load_model:ir_compiler_transformation:828 - use quant data as gt input: latent_mask, uint8, (1, 201)
+2026-05-26 08:56:17.130 | INFO     | yamain.command.load_model:ir_compiler_transformation:828 - use quant data as gt input: k_text_0, float32, (1, 256, 20, 64)
+2026-05-26 08:56:17.130 | INFO     | yamain.command.load_model:ir_compiler_transformation:828 - use quant data as gt input: v_text_0, float32, (1, 256, 20, 64)
+2026-05-26 08:56:17.130 | INFO     | yamain.command.load_model:ir_compiler_transformation:828 - use quant data as gt input: k_spk_0, float32, (1, 2, 20, 64)
+2026-05-26 08:56:17.130 | INFO     | yamain.command.load_model:ir_compiler_transformation:828 - use quant data as gt input: v_spk_0, float32, (1, 2, 20, 64)
+2026-05-26 08:56:17.130 | INFO     | yamain.command.load_model:ir_compiler_transformation:828 - use quant data as gt input: k_text_1, float32, (1, 256, 20, 64)
+2026-05-26 08:56:17.130 | INFO     | yamain.command.load_model:ir_compiler_transformation:828 - use quant data as gt input: v_text_1, float32, (1, 256, 20, 64)
+2026-05-26 08:56:17.130 | INFO     | yamain.command.load_model:ir_compiler_transformation:828 - use quant data as gt input: k_spk_1, float32, (1, 2, 20, 64)
+2026-05-26 08:56:17.130 | INFO     | yamain.command.load_model:ir_compiler_transformation:828 - use quant data as gt input: v_spk_1, float32, (1, 2, 20, 64)
+2026-05-26 08:56:17.130 | INFO     | yamain.command.load_model:ir_compiler_transformation:828 - use quant data as gt input: k_text_2, float32, (1, 256, 20, 64)
+2026-05-26 08:56:17.131 | INFO     | yamain.command.load_model:ir_compiler_transformation:828 - use quant data as gt input: v_text_2, float32, (1, 256, 20, 64)
+2026-05-26 08:56:17.131 | INFO     | yamain.command.load_model:ir_compiler_transformation:828 - use quant data as gt input: k_spk_2, float32, (1, 2, 20, 64)
+2026-05-26 08:56:17.131 | INFO     | yamain.command.load_model:ir_compiler_transformation:828 - use quant data as gt input: v_spk_2, float32, (1, 2, 20, 64)
+2026-05-26 08:56:17.131 | INFO     | yamain.command.load_model:ir_compiler_transformation:828 - use quant data as gt input: k_text_3, float32, (1, 256, 20, 64)
+2026-05-26 08:56:17.131 | INFO     | yamain.command.load_model:ir_compiler_transformation:828 - use quant data as gt input: v_text_3, float32, (1, 256, 20, 64)
+2026-05-26 08:56:17.131 | INFO     | yamain.command.load_model:ir_compiler_transformation:828 - use quant data as gt input: k_spk_3, float32, (1, 2, 20, 64)
+2026-05-26 08:56:17.131 | INFO     | yamain.command.load_model:ir_compiler_transformation:828 - use quant data as gt input: v_spk_3, float32, (1, 2, 20, 64)
+2026-05-26 08:56:17.131 | INFO     | yamain.command.load_model:ir_compiler_transformation:828 - use quant data as gt input: k_text_4, float32, (1, 256, 20, 64)
+2026-05-26 08:56:17.131 | INFO     | yamain.command.load_model:ir_compiler_transformation:828 - use quant data as gt input: v_text_4, float32, (1, 256, 20, 64)
+2026-05-26 08:56:17.131 | INFO     | yamain.command.load_model:ir_compiler_transformation:828 - use quant data as gt input: k_spk_4, float32, (1, 2, 20, 64)
+2026-05-26 08:56:17.131 | INFO     | yamain.command.load_model:ir_compiler_transformation:828 - use quant data as gt input: v_spk_4, float32, (1, 2, 20, 64)
+2026-05-26 08:56:17.131 | INFO     | yamain.command.load_model:ir_compiler_transformation:828 - use quant data as gt input: k_text_5, float32, (1, 256, 20, 64)
+2026-05-26 08:56:17.131 | INFO     | yamain.command.load_model:ir_compiler_transformation:828 - use quant data as gt input: v_text_5, float32, (1, 256, 20, 64)
+2026-05-26 08:56:17.131 | INFO     | yamain.command.load_model:ir_compiler_transformation:828 - use quant data as gt input: k_spk_5, float32, (1, 2, 20, 64)
+2026-05-26 08:56:17.131 | INFO     | yamain.command.load_model:ir_compiler_transformation:828 - use quant data as gt input: v_spk_5, float32, (1, 2, 20, 64)
+2026-05-26 08:56:17.131 | INFO     | yamain.command.load_model:ir_compiler_transformation:828 - use quant data as gt input: k_text_6, float32, (1, 256, 20, 64)
+2026-05-26 08:56:17.131 | INFO     | yamain.command.load_model:ir_compiler_transformation:828 - use quant data as gt input: v_text_6, float32, (1, 256, 20, 64)
+2026-05-26 08:56:17.131 | INFO     | yamain.command.load_model:ir_compiler_transformation:828 - use quant data as gt input: k_spk_6, float32, (1, 2, 20, 64)
+2026-05-26 08:56:17.131 | INFO     | yamain.command.load_model:ir_compiler_transformation:828 - use quant data as gt input: v_spk_6, float32, (1, 2, 20, 64)
+2026-05-26 08:56:17.131 | INFO     | yamain.command.load_model:ir_compiler_transformation:828 - use quant data as gt input: k_text_7, float32, (1, 256, 20, 64)
+2026-05-26 08:56:17.131 | INFO     | yamain.command.load_model:ir_compiler_transformation:828 - use quant data as gt input: v_text_7, float32, (1, 256, 20, 64)
+2026-05-26 08:56:17.131 | INFO     | yamain.command.load_model:ir_compiler_transformation:828 - use quant data as gt input: k_spk_7, float32, (1, 2, 20, 64)
+2026-05-26 08:56:17.131 | INFO     | yamain.command.load_model:ir_compiler_transformation:828 - use quant data as gt input: v_spk_7, float32, (1, 2, 20, 64)
+2026-05-26 08:56:17.131 | INFO     | yamain.command.load_model:ir_compiler_transformation:828 - use quant data as gt input: k_text_8, float32, (1, 256, 20, 64)
+2026-05-26 08:56:17.131 | INFO     | yamain.command.load_model:ir_compiler_transformation:828 - use quant data as gt input: v_text_8, float32, (1, 256, 20, 64)
+2026-05-26 08:56:17.132 | INFO     | yamain.command.load_model:ir_compiler_transformation:828 - use quant data as gt input: k_spk_8, float32, (1, 2, 20, 64)
+2026-05-26 08:56:17.132 | INFO     | yamain.command.load_model:ir_compiler_transformation:828 - use quant data as gt input: v_spk_8, float32, (1, 2, 20, 64)
+2026-05-26 08:56:17.132 | INFO     | yamain.command.load_model:ir_compiler_transformation:828 - use quant data as gt input: k_text_9, float32, (1, 256, 20, 64)
+2026-05-26 08:56:17.132 | INFO     | yamain.command.load_model:ir_compiler_transformation:828 - use quant data as gt input: v_text_9, float32, (1, 256, 20, 64)
+2026-05-26 08:56:17.132 | INFO     | yamain.command.load_model:ir_compiler_transformation:828 - use quant data as gt input: k_spk_9, float32, (1, 2, 20, 64)
+2026-05-26 08:56:17.132 | INFO     | yamain.command.load_model:ir_compiler_transformation:828 - use quant data as gt input: v_spk_9, float32, (1, 2, 20, 64)
+2026-05-26 08:56:17.132 | INFO     | yamain.command.load_model:ir_compiler_transformation:828 - use quant data as gt input: k_text_10, float32, (1, 256, 20, 64)
+2026-05-26 08:56:17.132 | INFO     | yamain.command.load_model:ir_compiler_transformation:828 - use quant data as gt input: v_text_10, float32, (1, 256, 20, 64)
+2026-05-26 08:56:17.132 | INFO     | yamain.command.load_model:ir_compiler_transformation:828 - use quant data as gt input: k_spk_10, float32, (1, 2, 20, 64)
+2026-05-26 08:56:17.132 | INFO     | yamain.command.load_model:ir_compiler_transformation:828 - use quant data as gt input: v_spk_10, float32, (1, 2, 20, 64)
+2026-05-26 08:56:17.132 | INFO     | yamain.command.load_model:ir_compiler_transformation:828 - use quant data as gt input: k_text_11, float32, (1, 256, 20, 64)
+2026-05-26 08:56:17.132 | INFO     | yamain.command.load_model:ir_compiler_transformation:828 - use quant data as gt input: v_text_11, float32, (1, 256, 20, 64)
+2026-05-26 08:56:17.132 | INFO     | yamain.command.load_model:ir_compiler_transformation:828 - use quant data as gt input: k_spk_11, float32, (1, 2, 20, 64)
+2026-05-26 08:56:17.132 | INFO     | yamain.command.load_model:ir_compiler_transformation:828 - use quant data as gt input: v_spk_11, float32, (1, 2, 20, 64)
+2026-05-26 08:56:17.470 | INFO     | yamain.command.build:compile_ptq_model:1190 - group 0 QuantAxModel macs: 119,142,031,360
+2026-05-26 08:56:17.865 | INFO     | yamain.command.build:compile_ptq_model:1325 - subgraph [0], group: 0, type: GraphType.NPU
+2026-05-26 08:56:17.865 | INFO     | yamain.compiler.npu_backend_compiler:compile:191 - compile npu subgraph [0]
+tiling op...   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2488/2488 0:00:35
+new_ddr_tensor = []
+build op serially...   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2661/2661 0:01:27
+build op...   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4835/4835 0:00:00
+add ddr swap...   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 39150/39150 0:00:38
+calc input dependencies...   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 61695/61695 0:00:11
+calc output dependencies...   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 61695/61695 0:00:22
+assign eu heuristic   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 61695/61695 0:00:14
+assign eu onepass   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 61695/61695 0:00:01
+assign eu greedy   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 61695/61695 0:00:01
+2026-05-26 09:00:04.937 | INFO     | yasched.test_onepass:results2model_gen:3204 - clear job deps
+2026-05-26 09:00:04.937 | INFO     | yasched.test_onepass:results2model_gen:3205 - max_cycle = 36,035,625
+build jobs   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 61695/61695 0:00:36
+2026-05-26 09:00:54.265 | INFO     | yamain.compiler.npu_backend_compiler:compile:293 - assemble model [0] [subgraph_npu_0] b1
+2026-05-26 09:02:13.368 | INFO     | yamain.command.build:compile_ptq_model:1368 - fuse 1 subgraph(s)

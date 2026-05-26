@@ -1,0 +1,112 @@
++---------------+-----------------------------+
+|  Model Name   |          OnnxModel          |
++---------------+-----------------------------+
+|  Model Info   | Op Set: 17 / IR Version: 10 |
++---------------+-----------------------------+
+|     IN: z     |    float32: (1, 32, 201)    |
+|  OUT: audio   |   float32: (1, 1, 385920)   |
++---------------+-----------------------------+
+|      Add      |             41              |
+|     Conv      |             27              |
+| ConvTranspose |              4              |
+|      Cos      |             29              |
+|      Mul      |             58              |
+|    Reshape    |             29              |
+|      Sub      |             29              |
+|     Tanh      |              1              |
++---------------+-----------------------------+
+|  Model Size   |          249.26 MB          |
++---------------+-----------------------------+
+2026-05-26 09:05:07.582 | WARNING  | yamain.command.build:fill_default:314 - apply default output processor configuration to ['audio']
+2026-05-26 09:05:07.582 | INFO     | yamain.common.util:extract_archive:149 - extract [/data/build/calib_dacvae_201/z.tar.gz] to [/data/build/axmodel_dacvae_T201/quant/dataset/z]...
+2026-05-26 09:05:07.861 | INFO     | frontend.parsers.onnx_parser:parse_onnx_model_proto:87 - onnxslim...
++---------------+-----------------------------+-----------------------------+
+|  Model Name   |          OnnxModel          |          OnnxModel          |
++---------------+-----------------------------+-----------------------------+
+|  Model Info   | Op Set: 17 / IR Version: 10 | Op Set: 17 / IR Version: 10 |
++---------------+-----------------------------+-----------------------------+
+|     IN: z     |    float32: (1, 32, 201)    |    float32: (1, 32, 201)    |
+|  OUT: audio   |   float32: (1, 1, 385920)   |   float32: (1, 1, 385920)   |
++---------------+-----------------------------+-----------------------------+
+|      Add      |             41              |             41              |
+|     Conv      |             27              |             27              |
+| ConvTranspose |              4              |              4              |
+|      Cos      |             29              |             29              |
+|      Mul      |             58              |             58              |
+|    Reshape    |             29              |              0              |
+|      Sub      |             29              |             29              |
+|     Tanh      |              1              |              1              |
++---------------+-----------------------------+-----------------------------+
+|  Model Size   |          249.26 MB          |          249.26 MB          |
++---------------+-----------------------------+-----------------------------+
+| Elapsed Time  |                          0.57 s                           |
++---------------+-----------------------------+-----------------------------+
+Building onnx ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% 0:00:00
+2026-05-26 09:05:23.193 | INFO     | yamain.command.build:quant:867 - save optimized onnx to [/data/build/axmodel_dacvae_T201/frontend/optimized.onnx]
+                               Quant Config Table                               
+┏━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━┳━━━━━┓
+┃       ┃              ┃ Dataset      ┃             ┃ Tensor      ┃      ┃     ┃
+┃ Input ┃ Shape        ┃ Directory    ┃ Data Format ┃ Format      ┃ Mean ┃ Std ┃
+┡━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━╇━━━━━━━━━━━━━╇━━━━━━╇━━━━━┩
+│ z     │ [1, 32, 201] │ /data/build… │ Numpy       │             │ []   │ []  │
+└───────┴──────────────┴──────────────┴─────────────┴─────────────┴──────┴─────┘
+Quantization calibration will be executed on cuda:0
+Transformer optimize level: 0
+Statistics Inf tensor:   0%|          | 0/1 [00:00<?, ?it/s]Statistics Inf tensor: 100%|██████████| 1/1 [00:00<00:00,  2.75it/s]Statistics Inf tensor: 100%|██████████| 1/1 [00:00<00:00,  2.74it/s]
+[Info]These op contains very big range, maybe cause low precision: ['node_mul_3', 'node_mul_31', 'node_mul_51']
+[09:05:34] AX Set Float Op Table Pass Running ...         
+[09:05:35] AX Set MixPrecision Pass Running ...           
+[09:05:35] AX Set LN Quant dtype Quant Pass Running ...   
+[09:05:35] AX Refine Operation Config Pass Running ...    
+[09:05:35] AX Tanh Operation Format Pass Running ...      
+[09:05:35] AX Confused Op Refine Pass Running ...         
+[09:05:36] AX Quantization Fusion Pass Running ...        
+[09:05:36] AX Quantization Simplify Pass Running ...      
+[09:05:36] AX Parameter Quantization Pass Running ...     
+[09:05:37] AX Runtime Calibration Pass Running ...        
+Calibration Progress(Phase 1):   0%|          | 0/16 [00:00<?, ?it/s]Calibration Progress(Phase 1):   6%|▋         | 1/16 [00:00<00:05,  2.71it/s]Calibration Progress(Phase 1):  12%|█▎        | 2/16 [00:00<00:04,  3.20it/s]Calibration Progress(Phase 1):  19%|█▉        | 3/16 [00:00<00:03,  3.40it/s]Calibration Progress(Phase 1):  25%|██▌       | 4/16 [00:01<00:03,  3.48it/s]Calibration Progress(Phase 1):  31%|███▏      | 5/16 [00:01<00:03,  3.52it/s]Calibration Progress(Phase 1):  38%|███▊      | 6/16 [00:01<00:02,  3.53it/s]Calibration Progress(Phase 1):  44%|████▍     | 7/16 [00:02<00:02,  3.57it/s]Calibration Progress(Phase 1):  50%|█████     | 8/16 [00:02<00:02,  3.62it/s]Calibration Progress(Phase 1):  56%|█████▋    | 9/16 [00:02<00:01,  3.65it/s]Calibration Progress(Phase 1):  62%|██████▎   | 10/16 [00:02<00:01,  3.68it/s]Calibration Progress(Phase 1):  69%|██████▉   | 11/16 [00:03<00:01,  3.70it/s]Calibration Progress(Phase 1):  75%|███████▌  | 12/16 [00:03<00:01,  3.71it/s]Calibration Progress(Phase 1):  81%|████████▏ | 13/16 [00:03<00:00,  3.71it/s]Calibration Progress(Phase 1):  88%|████████▊ | 14/16 [00:03<00:00,  3.71it/s]Calibration Progress(Phase 1):  94%|█████████▍| 15/16 [00:04<00:00,  3.72it/s]Calibration Progress(Phase 1): 100%|██████████| 16/16 [00:04<00:00,  3.73it/s]Calibration Progress(Phase 1): 100%|██████████| 16/16 [00:04<00:00,  3.61it/s]
+[09:05:41] AX Quantization Alignment Pass Running ...     
+[09:05:41] AX Refine Int Parameter Pass Running ...       
+[09:05:41] AX Refine Scale Pass Running ...               
+[09:05:41] AX Passive Parameter Quantization Running ...  
+[09:05:41] AX Parameter Baking Pass Running ...           
+--------- Network Snapshot ---------
+Num of Op:                    [189]
+Num of Quantized Op:          [189]
+Num of Variable:              [339]
+Num of Quantized Var:         [339]
+------- Quantization Snapshot ------
+Num of Quant Config:          [568]
+BAKED:                        [118]
+OVERLAPPED:                   [229]
+ACTIVATED:                    [190]
+PASSIVE_BAKED:                [31]
+Network Quantization Finished.
+Do quant optimization
+quant.axmodel export success: 
+	/data/build/axmodel_dacvae_T201/quant/quant_axmodel.onnx
+	/data/build/axmodel_dacvae_T201/quant/quant_axmodel.data
+===>export io data to folder: /data/build/axmodel_dacvae_T201/quant/debug/io
+Building native ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% 0:00:00
+2026-05-26 09:05:46.344 | INFO     | yamain.command.build:compile_ptq_model:1169 - group 0 compiler transformation
+2026-05-26 09:05:46.344 | WARNING  | yamain.command.load_model:post_process:633 - postprocess tensor [audio]
+2026-05-26 09:05:46.345 | INFO     | yamain.command.load_model:ir_compiler_transformation:828 - use quant data as gt input: z, float32, (1, 32, 201)
+2026-05-26 09:05:46.434 | INFO     | yamain.command.build:compile_ptq_model:1190 - group 0 QuantAxModel macs: 440,656,834,560
+2026-05-26 09:05:46.499 | INFO     | yamain.command.build:compile_ptq_model:1325 - subgraph [0], group: 0, type: GraphType.NPU
+2026-05-26 09:05:46.500 | INFO     | yamain.compiler.npu_backend_compiler:compile:191 - compile npu subgraph [0]
+tiling op...   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 250/250 0:00:22
+new_ddr_tensor = []
+2026-05-26 09:06:12.080 | WARNING  | yasched.test_onepass:graph_dedup:387 - there is 382 duplicate ops: ld:view_16[:1,:384,10624:13280]432_s4_gop, ld:view_16[:1,:384,13280:15936]432_s5_gop, ld:view_16[:1,:384,15936:18592]432_s6_gop, ld:view_16[:1,:384,18592:21248]432_s7_gop, ld:view_16[:1,:384,21248:23904]432_s8_gop, ld:view_16[:1,:384,23904:24120]432_s9_gop, ld:view_16[:1,:384,2656:5312]432_s1_gop, ld:view_16[:1,:384,5312:7968]432_s2_gop, ld:view_16[:1,:384,7968:10624]432_s3_gop, ld:view_16[:1,:384,:2656]432_s0_gop, ld:view_20[:1,:384,10624:13280]435_s4_gop, ld:view_20[:1,:384,13280:15936]435_s5_gop, ld:view_20[:1,:384,15936:18592]435_s6_gop, ld:view_20[:1,:384,18592:21248]435_s7_gop, ld:view_20[:1,:384,21248:23904]435_s8_gop, ld:view_20[:1,:384,23904:24120]435_s9_gop, ld:view_20[:1,:384,2656:5312]435_s1_gop, ld:view_20[:1,:384,5312:7968]435_s2_gop, ld:view_20[:1,:384,7968:10624]435_s3_gop, ld:view_20[:1,:384,:2656]435_s0_gop, ...
+build op serially...   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 7166/7166 0:04:38
+build op...   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 9157/9157 0:00:00
+add ddr swap...   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 111717/111717 0:02:54
+calc input dependencies...   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 122882/122882 0:00:36
+calc output dependencies...   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 122882/122882 0:01:17
+assign eu heuristic   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 122882/122882 0:00:39
+assign eu onepass   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 122882/122882 0:00:04
+assign eu greedy   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 122882/122882 0:00:04
+2026-05-26 09:16:56.782 | INFO     | yasched.test_onepass:results2model_gen:3204 - clear job deps
+2026-05-26 09:16:56.783 | INFO     | yasched.test_onepass:results2model_gen:3205 - max_cycle = 344,068,241
+build jobs   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 122882/122882 0:01:33
+2026-05-26 09:18:53.104 | INFO     | yamain.compiler.npu_backend_compiler:compile:293 - assemble model [0] [subgraph_npu_0] b1
+2026-05-26 09:21:44.103 | INFO     | yamain.command.build:compile_ptq_model:1368 - fuse 1 subgraph(s)
