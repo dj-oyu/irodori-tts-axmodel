@@ -168,12 +168,18 @@ def main():
         print(f"  step {i}: t={t:.3f} {calls}call {ms:.0f}ms", flush=True)
     print(f"[dit] sampling {tot/1000:.1f}s ({tot/ max(1,(args.num_steps)):.0f}ms/step avg)", flush=True)
 
-    # 5) trim -> dacvae -> wav
-    z = np.ascontiguousarray(np.transpose(x_t, (0, 2, 1))[:, :, :t_valid]).astype(np.float32)
+    # 5) dacvae -> wav. dacvae is fixed-shape (T119/T201); A3 t_valid is variable, so feed the
+    # latent fit to the dacvae's T (max-T) and trim the AUDIO to t_valid (max-T + mask + trim).
     dac = axe.InferenceSession(args.dacvae)
-    zin = dac.get_inputs()[0].name
-    s = time.time(); audio = np.asarray(dac.run(None, {zin: z})[0]).reshape(-1)
-    print(f"[dacvae] {audio.shape} ±{np.abs(audio).max():.3f} {(time.time()-s)*1000:.0f}ms", flush=True)
+    zin = dac.get_inputs()[0]; dac_T = zin.shape[2]
+    z_full = np.transpose(x_t, (0, 2, 1)).astype(np.float32)            # (1,32,T)
+    if z_full.shape[2] >= dac_T:
+        z = np.ascontiguousarray(z_full[:, :, :dac_T])
+    else:
+        z = np.ascontiguousarray(np.pad(z_full, ((0, 0), (0, 0), (0, dac_T - z_full.shape[2]))))
+    s = time.time(); audio = np.asarray(dac.run(None, {zin.name: z})[0]).reshape(-1)
+    audio = audio[:int(min(t_valid, dac_T) * args.hop)]                 # trim audio to A3 duration
+    print(f"[dacvae] z={z.shape} -> audio={audio.shape} ±{np.abs(audio).max():.3f} {(time.time()-s)*1000:.0f}ms", flush=True)
     write_wav(args.out_wav, audio, args.sr)
     print(f"[saved] {args.out_wav} dur={len(audio)/args.sr:.2f}s", flush=True)
 
