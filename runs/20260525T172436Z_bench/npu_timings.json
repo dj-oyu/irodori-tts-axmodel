@@ -1,0 +1,55 @@
+{
+  "phase": "npu_dit_dacvae",
+  "num_steps": 32,
+  "T_max": 201,
+  "dit_load_s": 2.49,
+  "dacvae_load_s": 0.46,
+  "dit_sampling_s": {
+    "n": 12,
+    "mean": 7.91,
+    "std": 0.03,
+    "median": 7.91,
+    "min": 7.87,
+    "max": 7.96,
+    "p95": 7.95,
+    "cv_pct": 0.3
+  },
+  "dit_per_call_ms": {
+    "n": 912,
+    "mean": 103.9,
+    "std": 1.78,
+    "median": 103.55,
+    "min": 101.49,
+    "max": 135.45,
+    "p95": 106.25,
+    "cv_pct": 1.7
+  },
+  "dacvae_decode_ms": {
+    "n": 12,
+    "mean": 165.92,
+    "std": 0.11,
+    "median": 165.9,
+    "min": 165.78,
+    "max": 166.08,
+    "p95": 166.07,
+    "cv_pct": 0.1
+  },
+  "per_text_sampling_s": {
+    "cond_0.npz": [
+      7.96,
+      7.92,
+      7.9,
+      7.92,
+      7.89,
+      7.95
+    ],
+    "cond_2.npz": [
+      7.92,
+      7.91,
+      7.89,
+      7.87,
+      7.91,
+      7.89
+    ]
+  }
+}
