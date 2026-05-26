@@ -35,7 +35,8 @@ PYTHONPATH=/home/exe/ai/Irodori-TTS python3 e2e_demo/slim_stageA.py \
 # → /tmp/cond/cond_plain.npz
 
 # Stage B+C: NPU で DiT サンプリング → DACVAE 復号 → wav（root必須）
-sudo -n PYTHONPATH=. /usr/bin/python3.10 e2e_demo/e2e_npu.py \
+# ※ device は axengine の --user site を指す（`.` だと axengine が見つからない）
+sudo -n PYTHONPATH=$HOME/.local/lib/python3.10/site-packages /usr/bin/python3.10 e2e_demo/e2e_npu.py \
   --cond /tmp/cond/cond_plain.npz \
   --dit   build/axmodel_kv_long_lm_allfcu16_npu3/compiled.axmodel \
   --dacvae build/axmodel_dacvae_b0/compiled.axmodel --t-valid 119 \
@@ -76,7 +77,7 @@ sudo -n PYTHONPATH=. /usr/bin/python3.10 e2e_demo/e2e_npu.py \
 ## NPU 排他（D1, 運用必須）
 - NPU は**2プロセス同時で SEGV**。TTS実行中は **VLM(axllm)/yolo を停止**。
 - 復帰順: **axllm → yolo → pet-album**。
-- root 必須（axengine が /dev/mem）: `sudo -n PYTHONPATH=. /usr/bin/python3.10 ...`（NOPASSWD設定済）。
+- root 必須（axengine が /dev/mem）: `sudo -n PYTHONPATH=$HOME/.local/lib/python3.10/site-packages /usr/bin/python3.10 ...`（NOPASSWD設定済。`.` だと axengine が見つからない）。
 
 ## 現状の限界（=次レバー）
 | 限界 | 回避/状態 | 本質解決 |
