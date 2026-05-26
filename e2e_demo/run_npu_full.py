@@ -75,7 +75,7 @@ def main():
     t0 = time.time()
     cond = axe.InferenceSession(args.cond)
     cin = {i.name: i for i in cond.get_inputs()}
-    feed_cond = {"input_ids": ids.astype(np.int64), "mask": text_mask.astype(np.uint8)}
+    feed_cond = {"input_ids": ids.astype(np.int32), "mask": text_mask.astype(np.uint8)}
     feed_cond = {n: feed_cond[n] for n in cin}
     out_names = [o.name for o in cond.get_outputs()]
     cout = cond.run(None, feed_cond)
