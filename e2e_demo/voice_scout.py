@@ -5,6 +5,10 @@
 背景 thread で「N+1 を先 synth」しておき、ユーザーが N を聴いてタグ入力している間に
 次が用意されている＝律速はユーザー入力＋再生のみ。
 
+**ディスク戦略**: 再生は aplay の stdin にメモリから流し、wav の永続化は
+**採用タグ(m/f/c/e/k) または note 付き**の seed のみ。skip した seed は zero footprint。
+100 seed 走らせても残るのは採用候補のみ（典型 10-30 個）。
+
   sudo -n PYTHONPATH=$HOME/.local/lib/python3.10/site-packages /usr/bin/python3.10 \
     e2e_demo/voice_scout.py --seeds 0-99 --text "おはようございます" \
     --out-dir /tmp/voice_scout --ratings /tmp/voice_scout/ratings.csv
@@ -188,10 +192,25 @@ def append_rating(path: Path, seed: int, tag: str, note: str) -> None:
         w.writerow([seed, tag, note, time.strftime("%Y-%m-%dT%H:%M:%S")])
 
 
-def play_wav(path: Path) -> None:
-    # aplay は内蔵 ES8311 (card0)。-q で quiet。
-    subprocess.run(["aplay", "-q", "-D", "plughw:0,0", str(path)],
+def _audio_to_wav_bytes(audio: np.ndarray, sr: int = 48000) -> bytes:
+    """numpy float -> RIFF wav bytes (16-bit mono PCM, no temp file)"""
+    import io, wave
+    pcm = (np.clip(audio, -1.0, 1.0) * 32767.0).astype('<i2')
+    buf = io.BytesIO()
+    with wave.open(buf, 'wb') as w:
+        w.setnchannels(1); w.setsampwidth(2); w.setframerate(sr); w.writeframes(pcm.tobytes())
+    return buf.getvalue()
+
+
+def play_audio(audio: np.ndarray, sr: int = 48000) -> None:
+    """ディスクに書かず aplay の stdin へ流す（採用しない wav を /tmp に残さないため）。"""
+    subprocess.run(["aplay", "-q", "-D", "plughw:0,0"],
+                   input=_audio_to_wav_bytes(audio, sr),
                    stderr=subprocess.DEVNULL, check=False)
+
+
+# 採用相当タグ（このタグが付いた seed のみ wav をディスクに残す）
+TAG_KEEP_WAV = {"m", "f", "c", "e", "k"}
 
 
 def synth_worker(pipeline: Pipeline, seeds: list[int], text: str, params: dict,
@@ -262,16 +281,16 @@ def main() -> int:
                 continue
             audio = payload
             counted += 1
-            wav_path = out_dir / f"seed_{seed:03d}.wav"
-            write_wav(str(wav_path), audio, 48000)
             dur = len(audio) / 48000
-            print(f"\n[{counted:3d}/{len(seeds)}] seed={seed:3d} t_valid={tv} ({dur:.2f}s) -> {wav_path}",
+            print(f"\n[{counted:3d}/{len(seeds)}] seed={seed:3d} t_valid={tv} ({dur:.2f}s)",
                   file=sys.stderr)
 
-            # 個別 prompt ループ（r=replay, n=note 等の二段入力に対応）
+            # 個別 prompt ループ（r=replay, n=note 等の二段入力に対応）。
+            # audio はメモリ上にだけ存在し、採用タグ(m/f/c/e/k) または note 付きの時のみディスクに保存。
             note = ""
+            saved_wav = False
             while True:
-                play_wav(wav_path)
+                play_audio(audio)
                 try:
                     ans = input(f"tag {TAG_HELP}: ").strip().lower()
                 except EOFError:
@@ -282,7 +301,7 @@ def main() -> int:
                     print("  m=男 f=女 c=子供 e=高齢 k=keep s=skip r=replay n=note q=quit",
                           file=sys.stderr); continue
                 if ans == "r":
-                    continue  # play 先頭に戻る
+                    continue  # play 先頭に戻る（audio をメモリから再生）
                 if ans == "n":
                     try:
                         note = input("  note > ").strip()
@@ -292,8 +311,14 @@ def main() -> int:
                 if ans == "q":
                     quit_now = True; break
                 if ans in TAG_VALID:
+                    # 採用候補 or note 付きのみ wav を保存（skip は zero footprint）
+                    if ans in TAG_KEEP_WAV or note:
+                        wav_path = out_dir / f"seed_{seed:03d}.wav"
+                        write_wav(str(wav_path), audio, 48000)
+                        saved_wav = True
                     append_rating(ratings_path, seed, ans, note)
-                    print(f"  saved: seed={seed} tag={ans} note={note!r}", file=sys.stderr)
+                    flag = " +wav" if saved_wav else ""
+                    print(f"  saved: seed={seed} tag={ans} note={note!r}{flag}", file=sys.stderr)
                     break
                 print(f"  unknown: {ans!r} (? で help)", file=sys.stderr)
     finally:
