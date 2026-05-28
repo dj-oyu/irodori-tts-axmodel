@@ -24,15 +24,18 @@ TEXT=$(cat "$TEXT_FILE")
 : "${T_VALID:=0}"
 : "${T_VALID_CAP_FRAMES:=0}"
 : "${DURATION_SCALE:=1.0}"
+: "${MAX_CHARS_PER_CHUNK:=28}"
+: "${INTER_CHUNK_PAUSE_MS:=200}"
 [ -z "${REPO:-}" ] && { echo "[synth] REPO 未設定 (install 時の @REPO@ 置換ミス?)" >&2; exit 1; }
 
-echo "[synth] text=${TEXT@Q} seed=${SEED} steps=${STEPS} t_valid=${T_VALID} cap=${T_VALID_CAP_FRAMES} dscale=${DURATION_SCALE}"
+echo "[synth] text(${#TEXT}chars) seed=${SEED} steps=${STEPS} t_valid=${T_VALID} cap=${T_VALID_CAP_FRAMES} dscale=${DURATION_SCALE} max_chars=${MAX_CHARS_PER_CHUNK} pause=${INTER_CHUNK_PAUSE_MS}ms"
 
 cd "$REPO"
 exec env "PYTHONPATH=${PYSITE}" /usr/bin/python3.10 "$REPO/e2e_demo/run_npu_full.py" \
   --text "$TEXT" --out-wav "$RESULT" \
   --seed "$SEED" --num-steps "$STEPS" \
   --t-valid "$T_VALID" --t-valid-cap-frames "$T_VALID_CAP_FRAMES" --duration-scale "$DURATION_SCALE" \
+  --max-chars-per-chunk "$MAX_CHARS_PER_CHUNK" --inter-chunk-pause-ms "$INTER_CHUNK_PAUSE_MS" \
   --cond "$REPO/build/axmodel_cond_textkv_dur/compiled.axmodel" \
   --constants "$REPO/build/cond_constants.npz" \
   --dit "$REPO/build/axmodel_kv_long_lm_allfcu16_npu3/compiled.axmodel" \

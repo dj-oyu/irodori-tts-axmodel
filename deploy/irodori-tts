@@ -17,6 +17,8 @@
 #   irodori-tts "こんにちは" --voice male
 #   irodori-tts "こんにちは" --voice female -o /tmp/out.wav
 #   irodori-tts "こんにちは" --seed 42 -o - | aplay   # 直指定 + stdout
+#   irodori-tts --file long.txt                       # ファイルから長文 (auto-chunk)
+#   cat long.txt | irodori-tts                        # stdin から長文 (auto-chunk)
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -42,12 +44,15 @@ DEFAULT_VOICE=$(/usr/bin/python3.10 -c "import json;print(json.load(open('$CATAL
 VOICE="$DEFAULT_VOICE"
 SEED=""
 TEXT=""
+TEXT_FILE=""         # --file PATH 指定で長文をファイルから読込
 OUT=""               # 未指定なら auto-play (kokoro-tts 互換: --output 無し = スピーカー再生)
 PLAY=0
 STEPS=16
 T_VALID=0
 T_VALID_CAP=0
 DURATION_SCALE=1.0
+MAX_CHARS=28         # chunk あたりの最大文字数
+PAUSE_MS=200         # chunk 間の無音 ms
 
 usage() {
   sed -n '2,21p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
@@ -67,18 +72,32 @@ while [[ $# -gt 0 ]]; do
   case "$1" in
     --voice)            VOICE="$2"; shift 2 ;;
     --seed)             SEED="$2"; shift 2 ;;
+    -f|--file)          TEXT_FILE="$2"; shift 2 ;;
     -o|--out|--output)  OUT="$2"; shift 2 ;;
     --play)             PLAY=1; shift ;;
     --steps)            STEPS="$2"; shift 2 ;;
     --t-valid)          T_VALID="$2"; shift 2 ;;
     --t-valid-cap-frames|--cap) T_VALID_CAP="$2"; shift 2 ;;
     --duration-scale)   DURATION_SCALE="$2"; shift 2 ;;
+    --max-chars)        MAX_CHARS="$2"; shift 2 ;;
+    --pause-ms)         PAUSE_MS="$2"; shift 2 ;;
     -h|--help)          usage 0 ;;
     -*)                 echo "unknown option: $1" >&2; usage 1 ;;
     *)                  TEXT="$1"; shift ;;
   esac
 done
-[ -z "$TEXT" ] && { echo "error: テキストが空" >&2; usage 1; }
+
+# テキスト解決: 位置引数 > --file PATH > stdin (pipe). tty に直接ぶら下がってる時は stdin 読まない
+if [ -z "$TEXT" ]; then
+  if [ -n "$TEXT_FILE" ]; then
+    [ -f "$TEXT_FILE" ] || { echo "error: --file '$TEXT_FILE' が無い" >&2; exit 1; }
+    TEXT="$(cat "$TEXT_FILE")"
+  elif [ ! -t 0 ]; then
+    # stdin が pipe/redirect → そこから読む
+    TEXT="$(cat)"
+  fi
+fi
+[ -z "$TEXT" ] && { echo "error: テキストが空 (位置引数 / --file / stdin のいずれかで与える)" >&2; usage 1; }
 
 # seed 確定: --seed 直指定 > voice pool ランダム
 if [ -z "$SEED" ]; then
@@ -118,6 +137,8 @@ STEPS=$STEPS
 T_VALID=$T_VALID
 T_VALID_CAP_FRAMES=$T_VALID_CAP
 DURATION_SCALE=$DURATION_SCALE
+MAX_CHARS_PER_CHUNK=$MAX_CHARS
+INTER_CHUNK_PAUSE_MS=$PAUSE_MS
 EOF
 
 echo "[tts] text=${TEXT@Q} seed=$SEED steps=$STEPS t-valid=$T_VALID -> $OUT" >&2
