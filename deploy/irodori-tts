@@ -42,7 +42,7 @@ DEFAULT_VOICE=$(/usr/bin/python3.10 -c "import json;print(json.load(open('$CATAL
 VOICE="$DEFAULT_VOICE"
 SEED=""
 TEXT=""
-OUT="/tmp/tts.wav"   # 既定出力（kokoro-tts と同じ位置）
+OUT=""               # 未指定なら auto-play (kokoro-tts 互換: --output 無し = スピーカー再生)
 PLAY=0
 STEPS=16
 T_VALID=0
@@ -100,6 +100,16 @@ LOCK=/tmp/ai-pyramid-tts.lock
 exec 200>"$LOCK"
 flock -w 600 200 || { echo "error: 別の irodori-tts が動作中（10分待っても取れず）" >&2; exit 1; }
 
+# 後始末: tmpfs 占有を最小化するため request/text/result すべて trap EXIT で削除。
+# 異常終了(失敗・SIGKILL以外)でもクリーンアップされる。SIGKILL は捕捉不可だが
+# その場合は systemd の ExecStopPost 経由で別管理されるサービス復帰のみ保証される
+# （wav は次の call で上書きされるので長期残留しない）。
+cleanup_tmp() {
+  rm -f "$WORKDIR/request.env" "$WORKDIR/text.in" "$WORKDIR/result.wav" 2>/dev/null || true
+  return 0
+}
+trap cleanup_tmp EXIT
+
 # request を投げる: TEXT は raw file、数値は env file
 printf '%s' "$TEXT" > "$WORKDIR/text.in"
 cat > "$WORKDIR/request.env" <<EOF
@@ -124,13 +134,21 @@ RESULT=$WORKDIR/result.wav
 [ -f "$RESULT" ] || { echo "error: $RESULT が生成されていない" >&2; exit 1; }
 
 if [ "$OUT" = "-" ]; then
+  # `-o -` ストリーム: wav を stdout（aplay 等にパイプ）
   cat "$RESULT"
   echo "[done] -> stdout" >&2
+elif [ -z "$OUT" ]; then
+  # --output 未指定: 自動再生（kokoro-tts 互換）。
+  # /tmp は tmpfs (= RAM-resident, ディスク I/O ゼロ) で result.wav は実質メモリのみ。
+  # voice_scout と同じく aplay の stdin にパイプ する形で対称性を持たせる。
+  echo "[play] (オンメモリ tmpfs → aplay stdin)" >&2
+  aplay -q -D plughw:0,0 < "$RESULT" 2>/dev/null || aplay -q < "$RESULT" 2>/dev/null || true
+  echo "[done]" >&2
 else
   cp "$RESULT" "$OUT"
   if [ $PLAY -eq 1 ]; then
     echo "[play] $OUT" >&2
-    aplay -D plughw:0,0 "$OUT" 2>/dev/null || aplay "$OUT" 2>/dev/null || true
+    aplay -q -D plughw:0,0 < "$OUT" 2>/dev/null || aplay -q < "$OUT" 2>/dev/null || true
   fi
   echo "[done] $OUT" >&2
 fi

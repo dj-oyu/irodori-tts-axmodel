@@ -56,8 +56,15 @@ rm "$TMPUNIT"
 # 4. wrapper CLI
 install -m 755 "$DEPLOY_DIR/irodori-tts" "$BIN_DIR/irodori-tts"
 
-# 5. 共有 tmp ディレクトリ（user が request.env を書き、root unit が読む）
-install -d -m 1777 "$TMP_DIR"
+# 5. 共有 tmp ディレクトリ
+#   - sticky 無し (0755) にし、user 所有にする → wrapper が後始末で root-owned result.wav を
+#     削除可能（dir owner は file owner 関係なく削除できる、sticky 無なら他人 file も rm 可）
+#   - user が request.env/text.in を書き、root unit (synth.sh) が読み、root が result.wav を書き、
+#     最後に wrapper(user) が trap EXIT で 3 ファイルすべて rm → 真の zero footprint
+SUDO_USER_NAME="${SUDO_USER:-admin-user}"
+install -d "$TMP_DIR"
+chmod 0755 "$TMP_DIR"
+chown "$SUDO_USER_NAME:$SUDO_USER_NAME" "$TMP_DIR"
 
 # 6. unit を systemd に認識させる
 /bin/systemctl daemon-reload
