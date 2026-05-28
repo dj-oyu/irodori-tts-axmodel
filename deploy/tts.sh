@@ -11,13 +11,12 @@
 #   deploy/tts.sh "テキスト" -o - | aplay        # wav を stdout に流して直接パイプ
 #   deploy/tts.sh "テキスト" -o - | ssh host aplay
 #
-# 必須環境変数（デバイス固有・publicリポジトリにハードコードしない）:
-#   IRODORI_TTS_HOME   irodori_tts パッケージのパス（PYTHONPATH に入る）
-#                      例: export IRODORI_TTS_HOME=$HOME/github/Irodori-TTS
 # 任意環境変数（既定はこのデバイス向け）:
-#   IRODORI_PY         python 実行体            (既定 /usr/bin/python3.10)
-#   IRODORI_PYSITE     axengine 等の site-packages（root から見えないため明示）
+#   IRODORI_PYSITE     axengine / huggingface_hub の site-packages（root から見えないため明示）
 #                      (既定 $HOME/.local/lib/python3.10/site-packages)
+#   IRODORI_TTS_HOME   （任意・通常不要）run_npu_full は torch/irodori_tts 非依存になったため不要。
+#                      set されていれば PYTHONPATH 先頭に足すだけ（後方互換）。
+#   IRODORI_PY         python 実行体            (既定 /usr/bin/python3.10)
 #   IRODORI_REPO       本リポジトリの場所       (既定: このスクリプトの2つ上)
 #   IRODORI_AXDIR      axmodel ディレクトリ     (既定: $IRODORI_REPO/build)
 #   IRODORI_AXLLM_UNIT axllm の systemd ユニット名（templated: axllm-serve@<model>.service）。
@@ -66,9 +65,9 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 [[ -z "$TEXT" ]] && { echo "error: テキストが空です" >&2; usage 1; }
-[[ -z "${IRODORI_TTS_HOME:-}" ]] && {
-  echo "error: IRODORI_TTS_HOME 未設定（irodori_tts のパスを指す）" >&2
-  echo "  例: export IRODORI_TTS_HOME=\$HOME/github/Irodori-TTS" >&2; exit 1; }
+# run_npu_full は torch/irodori_tts 非依存（tokenizers + huggingface_hub + axengine のみ）。
+# PYTHONPATH は axengine/hf_hub のある PYSITE。IRODORI_TTS_HOME は set 時のみ後方互換で前置。
+PYPATH="${IRODORI_TTS_HOME:+$IRODORI_TTS_HOME:}$PYSITE"
 
 # `-o -` なら wav を stdout へ（パイプ用）: temp に書いて最後に cat。ログは全て stderr。
 # ※ /tmp は sticky+world-writable なので fs.protected_regular が「user所有tempへのroot書込」を
@@ -93,7 +92,8 @@ cleanup() {
     echo "[svc] restart: $RESTART" >&2
     for s in $RESTART; do sudo -n systemctl start "$s" 2>/dev/null || true; done
   }
-  [[ $STREAM -eq 1 && -n "$WAVDIR" ]] && rm -rf "$WAVDIR"
+  if [[ $STREAM -eq 1 && -n "$WAVDIR" ]]; then rm -rf "$WAVDIR"; fi
+  return 0   # cleanup は EXIT trap。最後の式が false だと終了コードを汚染するので明示的に 0
 }
 trap cleanup EXIT
 
@@ -109,7 +109,7 @@ echo "[tts] text=\"$TEXT\" seed=$SEED steps=$STEPS t-valid=$TVALID -> $OUT" >&2
   "短文で末尾ノイズ/冒頭ゴミが出ることがある。気になる場合は --t-valid <frames>(25fps) を指定。" >&2
 cd "$REPO"  # run_npu_full.py が build/model_introspection.json を相対パスで開くため
 # python の進捗ログは stdout に出るので stderr へ寄せる（stdout は wav パイプ用に温存）
-sudo -n "PYTHONPATH=$IRODORI_TTS_HOME:$PYSITE" "$PY" "$REPO/e2e_demo/run_npu_full.py" \
+sudo -n "PYTHONPATH=$PYPATH" "$PY" "$REPO/e2e_demo/run_npu_full.py" \
   --text "$TEXT" --out-wav "$WAVPATH" --seed "$SEED" --num-steps "$STEPS" \
   --t-valid "$TVALID" --duration-scale "$DSCALE" \
   --cond "$COND" --constants "$CONST" --dit "$DIT" --dacvae "$DACVAE" 1>&2
