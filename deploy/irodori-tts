@@ -1,0 +1,80 @@
+#!/usr/bin/env bash
+# irodori-tts — production text→wav CLI（voice catalog 経由 + NPU パイプライン）。
+#
+# 設計: voice = f(seed, text) で text 依存 character shift がある（同 seed でも text で
+# 男女・声質が変動）ため、user 向け抽象は seed-anchored "voice A/B" ではなく gender pool。
+#   --voice female  → female pool から毎回 random.choice → 自然な揺らぎ
+#   --voice male    → male pool   〃
+#   --seed N        → 直指定（escape hatch、再現性が必要な時）
+# pool 自体は voice_scout.py のタグから curate して voices.json に保存される。
+#
+# 中身は deploy/tts.sh（NPU 排他 + 全段 NPU 合成）に delegate する thin wrapper。
+#
+# 使い方:
+#   irodori-tts "こんにちは"
+#   irodori-tts "こんにちは" --voice male
+#   irodori-tts "こんにちは" --voice female -o /tmp/out.wav
+#   irodori-tts "こんにちは" --seed 42 -o - | aplay   # 直指定 seed + stdout パイプ
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# catalog 検索: env > 同階層 > インストール先（Phase 1 完成時）
+CATALOG="${IRODORI_VOICES:-}"
+[ -z "$CATALOG" ] && [ -f "$SCRIPT_DIR/voices.json" ] && CATALOG="$SCRIPT_DIR/voices.json"
+[ -z "$CATALOG" ] && [ -f "/usr/local/lib/ai-pyramid-tts/voices.json" ] && CATALOG="/usr/local/lib/ai-pyramid-tts/voices.json"
+[ -f "${CATALOG:-/nonexistent}" ] || { echo "error: voices.json が見つからない (set IRODORI_VOICES)" >&2; exit 1; }
+
+# default voice は catalog の _default を読み、無ければ female
+DEFAULT_VOICE=$(/usr/bin/python3.10 -c "import json;print(json.load(open('$CATALOG')).get('_default','female'))")
+VOICE="$DEFAULT_VOICE"
+SEED=""
+TEXT=""
+EXTRA=()
+
+usage() {
+  sed -n '2,17p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
+  echo
+  echo "available voices in $CATALOG:"
+  /usr/bin/python3.10 -c "
+import json
+v = json.load(open('$CATALOG'))
+for k, p in v.items():
+    if k.startswith('_') or not isinstance(p, list): continue
+    print(f'  {k}: {len(p)} seeds')
+"
+  exit "${1:-0}"
+}
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --voice)            VOICE="$2"; shift 2 ;;
+    --seed)             SEED="$2"; shift 2 ;;
+    -o|--out|--output)  EXTRA+=("-o" "$2"); shift 2 ;;
+    --play)             EXTRA+=("--play"); shift ;;
+    --steps)            EXTRA+=("--steps" "$2"); shift 2 ;;
+    --t-valid)          EXTRA+=("--t-valid" "$2"); shift 2 ;;
+    --duration-scale)   EXTRA+=("--duration-scale" "$2"); shift 2 ;;
+    --keep-services)    EXTRA+=("--keep-services"); shift ;;
+    -h|--help)          usage 0 ;;
+    -*)                 echo "unknown option: $1" >&2; usage 1 ;;
+    *)                  TEXT="$1"; shift ;;
+  esac
+done
+[ -z "$TEXT" ] && { echo "error: テキストが空" >&2; usage 1; }
+
+# seed 確定: --seed 直指定 > voice pool ランダム
+if [ -z "$SEED" ]; then
+  SEED=$(/usr/bin/python3.10 -c "
+import json, random, sys
+v = json.load(open('$CATALOG'))
+pool = v.get('$VOICE')
+if not isinstance(pool, list) or not pool:
+    print(f'error: voice \"$VOICE\" が catalog にない or empty', file=sys.stderr); sys.exit(1)
+print(random.choice(pool))
+") || exit 1
+  echo "[voice] $VOICE pool → seed=$SEED" >&2
+else
+  echo "[voice] --seed $SEED (直指定, catalog 無視)" >&2
+fi
+
+exec "$SCRIPT_DIR/tts.sh" "$TEXT" --seed "$SEED" "${EXTRA[@]}"
