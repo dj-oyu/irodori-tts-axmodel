@@ -164,7 +164,7 @@ def parse_seeds(spec: str) -> list[int]:
 
 
 TAG_HELP = ("[m]=男 [f]=女 [c]=子供 [e]=高齢 [k]=keep(良) [s]=skip(不採用) "
-            "[r]=replay [n]=note [q]=quit [?]=help")
+            "[r]=replay [g]=regen [n]=note [q]=quit [?]=help")
 TAG_VALID = {"m", "f", "c", "e", "k", "s"}
 
 
@@ -214,13 +214,16 @@ TAG_KEEP_WAV = {"m", "f", "c", "e", "k"}
 
 
 def synth_worker(pipeline: Pipeline, seeds: list[int], text: str, params: dict,
-                 q_out: queue.Queue, stop_evt: threading.Event) -> None:
-    """背景 thread: seed を逐次 synth して queue に積む。stop_evt で中断対応。"""
+                 q_out: queue.Queue, stop_evt: threading.Event,
+                 synth_lock: threading.Lock) -> None:
+    """背景 thread: seed を逐次 synth して queue に積む。stop_evt で中断対応。
+    NPU は排他リソースのため synth_lock で main thread の `g` regen と直列化する。"""
     for seed in seeds:
         if stop_evt.is_set():
             break
         try:
-            audio, tv = pipeline.synthesize(text, seed=seed, **params)
+            with synth_lock:
+                audio, tv = pipeline.synthesize(text, seed=seed, **params)
             q_out.put(("ok", seed, audio, tv))
         except Exception as e:
             q_out.put(("err", seed, str(e), 0))
@@ -262,11 +265,13 @@ def main() -> int:
     params = dict(num_steps=args.num_steps, t_valid=args.t_valid,
                   t_valid_cap_frames=args.t_valid_cap_frames)
 
-    # 背景 prefetch thread
+    # 背景 prefetch thread。synth_lock で worker と main thread の `g` regen が
+    # NPU を奪い合わないように直列化（NPU は排他資源、2 thread 同時呼出で SEGV）。
     q = queue.Queue(maxsize=1 if not args.no_pipeline else 0)
     stop_evt = threading.Event()
+    synth_lock = threading.Lock()
     worker = threading.Thread(target=synth_worker,
-                              args=(pipeline, seeds, args.text, params, q, stop_evt),
+                              args=(pipeline, seeds, args.text, params, q, stop_evt, synth_lock),
                               daemon=True)
     worker.start()
 
@@ -298,10 +303,31 @@ def main() -> int:
                 if not ans:
                     continue
                 if ans == "?":
-                    print("  m=男 f=女 c=子供 e=高齢 k=keep s=skip r=replay n=note q=quit",
+                    print("  m=男 f=女 c=子供 e=高齢 k=keep s=skip r=replay g=regen n=note q=quit",
                           file=sys.stderr); continue
                 if ans == "r":
                     continue  # play 先頭に戻る（audio をメモリから再生）
+                if ans == "g":
+                    # 同じ seed で再生成 → 決定性検証（worker と排他のため synth_lock）。
+                    # 期待: byte-identical（np.random.default_rng + axengine は決定的のはず）
+                    print(f"  regenerating seed={seed}...", file=sys.stderr, flush=True)
+                    t0 = time.time()
+                    with synth_lock:
+                        new_audio, new_tv = pipeline.synthesize(args.text, seed=seed, **params)
+                    elapsed = time.time() - t0
+                    if new_audio.shape == audio.shape:
+                        diff = float(np.abs(new_audio - audio).max())
+                        if diff == 0.0:
+                            print(f"  [regen] byte-identical ({elapsed:.1f}s, "
+                                  f"seed={seed} is deterministic)", file=sys.stderr)
+                        else:
+                            print(f"  [regen] DIFFERS L_inf={diff:.6f} ({elapsed:.1f}s, "
+                                  f"nondeterminism detected)", file=sys.stderr)
+                    else:
+                        print(f"  [regen] shape differs old={audio.shape} new={new_audio.shape}",
+                              file=sys.stderr)
+                    audio = new_audio; tv = new_tv  # 以降の r/save は新しい audio を対象に
+                    continue  # play 先頭に戻り新音声を再生
                 if ans == "n":
                     try:
                         note = input("  note > ").strip()
