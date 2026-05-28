@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
-"""完全NPU化 text->wav（実機 AX8850, ROOT）。torch モデル / model.safetensors 不要。
+"""完全NPU化 text->wav（実機 AX8850, ROOT）。torch / irodori_tts / model.safetensors 不要。
 
 条件付けを ① cond axmodel (text KV) + bake 済定数(speaker/text-branch KV) で構成し、
-DiT(allfcu16_npu3) → dacvae(T201/b0) まで全段 NPU。tokenizer のみ torch 非依存で使用。
+DiT(allfcu16_npu3) → dacvae(T201/b0) まで全段 NPU。
+tokenizer は tokenizers(Rust製) で tokenizer.json を直読み、normalize_text は stdlib のみ＝
+**torch 完全非依存**（cold tokenize ~15s→~1s, IRODORI_TTS_HOME 不要）。
 
 no_ref 専用（話者は --seed）。A3: ① が token_logits を出すと t_valid を自動予測（可変長）。
 検証は実機で行い、結果は RESULT.md に書いて GitHub 共有。
@@ -32,17 +34,66 @@ def write_wav(path, wav, sr):
         w.setnchannels(1); w.setsampwidth(2); w.setframerate(sr); w.writeframes(pcm.tobytes())
 
 
+# --- text normalization: irodori_tts.text_normalization の移植（stdlib のみ・torch非依存）---
+import re, unicodedata
+_SIMPLE_REPLACE = {"\t": "", "[n]": "", r"\[n\]": "", "　": "", "？": "?", "！": "!",
+                   "♥": "♡", "●": "○", "◯": "○", "〇": "○"}
+_REGEX_REPLACE = {
+    re.compile(r"[;▼♀♂《》≪≫①②③④⑤⑥]"): "",
+    re.compile(r"[˗‐-―⁃−⎯⏤─━⸺⸻]"): "",
+    re.compile(r"[～〜]"): "ー",
+    re.compile(r"…{3,}"): "……",
+}
+
+
+def _strip_outer_brackets(text):
+    pairs = {"「": "」", "『": "』", "（": "）", "【": "】", "(": ")"}
+    while len(text) >= 2:
+        s, e = text[0], text[-1]
+        if s in pairs and pairs[s] == e:
+            depth = 0; enclosing = True
+            for i, c in enumerate(text):
+                if c == s: depth += 1
+                elif c == e: depth -= 1
+                if depth == 0 and i < len(text) - 1:
+                    enclosing = False; break
+            if enclosing and depth == 0:
+                text = text[1:-1]; continue
+        break
+    return text
+
+
+def normalize_text(text):
+    for old, new in _SIMPLE_REPLACE.items():
+        text = text.replace(old, new)
+    for pat, rep in _REGEX_REPLACE.items():
+        text = pat.sub(rep, text)
+    text = _strip_outer_brackets(text)
+    text = unicodedata.normalize("NFKC", text)
+    return text.replace("...", "…").replace("..", "…")
+
+
 def tokenize(text, seq=256):
-    from irodori_tts.tokenizer import PretrainedTextTokenizer
-    from irodori_tts.text_normalization import normalize_text
-    import json, dataclasses
-    from irodori_tts.config import ModelConfig
-    cfg_all = json.load(open("build/model_introspection.json"))["model_cfg"]
-    fields = {f.name for f in dataclasses.fields(ModelConfig)}
-    cfg = ModelConfig(**{k: v for k, v in cfg_all.items() if k in fields})
-    tok = PretrainedTextTokenizer.from_pretrained(cfg.text_tokenizer_repo, add_bos=cfg.text_add_bos)
-    ids, mask = tok.batch_encode([normalize_text(text).strip()], max_length=seq)
-    return ids.numpy().astype(np.int64), mask.numpy(), int(mask.sum())
+    """torch非依存: tokenizers(Rust) で tokenizer.json を直読み。ID は transformers 経路と一致。"""
+    import json
+    from tokenizers import Tokenizer
+    from huggingface_hub import hf_hub_download
+    cfg = json.load(open("build/model_introspection.json"))["model_cfg"]
+    repo = cfg["text_tokenizer_repo"]; add_bos = bool(cfg.get("text_add_bos", True))
+    tok = Tokenizer.from_file(hf_hub_download(repo, "tokenizer.json", local_files_only=True))
+    ids = tok.encode(normalize_text(text).strip(), add_special_tokens=False).ids
+    if add_bos:  # bos トークンは special_tokens_map.json から引き、vocab id に解決（ハードコードしない）
+        sm = json.load(open(hf_hub_download(repo, "special_tokens_map.json", local_files_only=True)))
+        bos = sm.get("bos_token")
+        bos = bos.get("content") if isinstance(bos, dict) else bos
+        bos_id = tok.token_to_id(bos) if bos is not None else None
+        if bos_id is None:
+            raise RuntimeError("text_add_bos=True だが bos_token_id を解決できない")
+        ids = [bos_id] + ids
+    ids = ids[:seq]
+    arr = np.zeros((1, seq), np.int64); mask = np.zeros((1, seq), np.uint8)
+    arr[0, :len(ids)] = ids; mask[0, :len(ids)] = 1
+    return arr, mask, int(mask.sum())
 
 
 def main():
