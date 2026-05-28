@@ -164,8 +164,17 @@ def parse_seeds(spec: str) -> list[int]:
 
 
 TAG_HELP = ("[m]=男 [f]=女 [c]=子供 [e]=高齢 [k]=keep(良) [s]=skip(不採用) "
-            "[r]=replay [g]=regen [n]=note [q]=quit [?]=help")
+            "[r]=replay [g]=次のテキスト [n]=note [q]=quit [?]=help")
 TAG_VALID = {"m", "f", "c", "e", "k", "s"}
+
+# `g` でローテートする例文集（挨拶/平叙/疑問/依頼/別れ。9-14 mora で揃え、抑揚で voice character を多面評価）
+DEFAULT_TEXTS = [
+    "おはようございます。",
+    "今日はとても良い天気ですね。",
+    "あれ、誰かいますか？",
+    "ちょっと待ってください。",
+    "ありがとう、また会いましょう。",
+]
 
 
 def load_existing(path: Path) -> dict[int, dict]:
@@ -233,7 +242,11 @@ def synth_worker(pipeline: Pipeline, seeds: list[int], text: str, params: dict,
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--seeds", default="0-99", help="例: 0-99 / 0,5,12 / 0-9,20,30")
-    ap.add_argument("--text", default="おはようございます。")
+    ap.add_argument("--text", default=None,
+                    help="単一テキストモード（rotation 無し、g は no-op）。互換用")
+    ap.add_argument("--texts", action="append", default=None,
+                    help="複数テキスト（g キーでローテート）。複数回指定可。"
+                         "未指定なら DEFAULT_TEXTS の 5 文")
     ap.add_argument("--out-dir", default="/tmp/voice_scout")
     ap.add_argument("--ratings", default="", help="既定: <out-dir>/ratings.csv")
     ap.add_argument("--skip-existing", action="store_true",
@@ -256,10 +269,15 @@ def main() -> int:
     existing = load_existing(ratings_path)
     seeds = [s for s in seeds_all if not (args.skip_existing and s in existing)]
 
+    # テキスト集: --texts > --text > DEFAULT_TEXTS。worker は texts[0] のみ prefetch。
+    # `g` キーで texts[1], [2], ... をローテート再合成（main thread, lock 付き）。
+    texts: list[str] = args.texts if args.texts else ([args.text] if args.text else list(DEFAULT_TEXTS))
+
     print(f"[scout] {len(seeds)}/{len(seeds_all)} seeds queued "
           f"(skip-existing={args.skip_existing}, already-rated={len(existing)})", file=sys.stderr)
-    print(f"[scout] text={args.text!r} steps={args.num_steps} "
-          f"out_dir={out_dir} ratings={ratings_path}", file=sys.stderr)
+    print(f"[scout] {len(texts)} text(s): {texts[0]!r}"
+          + (f" (+{len(texts)-1} more, `g` でローテート)" if len(texts) > 1 else "")
+          + f" steps={args.num_steps} out_dir={out_dir} ratings={ratings_path}", file=sys.stderr)
 
     pipeline = Pipeline(args.cond, args.dit, args.dacvae, args.constants)
     params = dict(num_steps=args.num_steps, t_valid=args.t_valid,
@@ -271,7 +289,7 @@ def main() -> int:
     stop_evt = threading.Event()
     synth_lock = threading.Lock()
     worker = threading.Thread(target=synth_worker,
-                              args=(pipeline, seeds, args.text, params, q, stop_evt, synth_lock),
+                              args=(pipeline, seeds, texts[0], params, q, stop_evt, synth_lock),
                               daemon=True)
     worker.start()
 
@@ -284,16 +302,19 @@ def main() -> int:
             if kind == "err":
                 print(f"[err] seed={seed}: {payload}", file=sys.stderr)
                 continue
-            audio = payload
+            audio = payload  # 現在再生中の audio（テキストローテートで差し替わる）
+            audio_canonical = audio  # texts[0] の音声。save 時はこちらを永続化する
             counted += 1
             dur = len(audio) / 48000
-            print(f"\n[{counted:3d}/{len(seeds)}] seed={seed:3d} t_valid={tv} ({dur:.2f}s)",
-                  file=sys.stderr)
+            print(f"\n[{counted:3d}/{len(seeds)}] seed={seed:3d} t_valid={tv} ({dur:.2f}s) "
+                  f"text[1/{len(texts)}]={texts[0]!r}", file=sys.stderr)
 
-            # 個別 prompt ループ（r=replay, n=note 等の二段入力に対応）。
-            # audio はメモリ上にだけ存在し、採用タグ(m/f/c/e/k) または note 付きの時のみディスクに保存。
+            # 個別 prompt ループ。audio はメモリ上にのみ存在。
+            # g キー: 同 seed で次の test text を再合成して切り替え（voice character を多面評価）。
+            # 採用タグ(m/f/c/e/k) または note 付きの時のみ canonical(texts[0]) を wav 保存。
             note = ""
             saved_wav = False
+            text_idx = 0
             while True:
                 play_audio(audio)
                 try:
@@ -303,30 +324,20 @@ def main() -> int:
                 if not ans:
                     continue
                 if ans == "?":
-                    print("  m=男 f=女 c=子供 e=高齢 k=keep s=skip r=replay g=regen n=note q=quit",
+                    print("  m=男 f=女 c=子供 e=高齢 k=keep s=skip r=replay g=次のテキスト n=note q=quit",
                           file=sys.stderr); continue
                 if ans == "r":
-                    continue  # play 先頭に戻る（audio をメモリから再生）
+                    continue  # play 先頭に戻る（同じ audio をメモリから再生）
                 if ans == "g":
-                    # 同じ seed で再生成 → 決定性検証（worker と排他のため synth_lock）。
-                    # 期待: byte-identical（np.random.default_rng + axengine は決定的のはず）
-                    print(f"  regenerating seed={seed}...", file=sys.stderr, flush=True)
-                    t0 = time.time()
+                    if len(texts) <= 1:
+                        print("  [g] texts が 1 文のみ。--texts で複数指定すると rotate できる",
+                              file=sys.stderr); continue
+                    text_idx = (text_idx + 1) % len(texts)
+                    nxt = texts[text_idx]
+                    print(f"  → text[{text_idx+1}/{len(texts)}]={nxt!r} (synth中...)",
+                          file=sys.stderr, flush=True)
                     with synth_lock:
-                        new_audio, new_tv = pipeline.synthesize(args.text, seed=seed, **params)
-                    elapsed = time.time() - t0
-                    if new_audio.shape == audio.shape:
-                        diff = float(np.abs(new_audio - audio).max())
-                        if diff == 0.0:
-                            print(f"  [regen] byte-identical ({elapsed:.1f}s, "
-                                  f"seed={seed} is deterministic)", file=sys.stderr)
-                        else:
-                            print(f"  [regen] DIFFERS L_inf={diff:.6f} ({elapsed:.1f}s, "
-                                  f"nondeterminism detected)", file=sys.stderr)
-                    else:
-                        print(f"  [regen] shape differs old={audio.shape} new={new_audio.shape}",
-                              file=sys.stderr)
-                    audio = new_audio; tv = new_tv  # 以降の r/save は新しい audio を対象に
+                        audio, tv = pipeline.synthesize(nxt, seed=seed, **params)
                     continue  # play 先頭に戻り新音声を再生
                 if ans == "n":
                     try:
@@ -337,10 +348,11 @@ def main() -> int:
                 if ans == "q":
                     quit_now = True; break
                 if ans in TAG_VALID:
-                    # 採用候補 or note 付きのみ wav を保存（skip は zero footprint）
+                    # 採用候補 or note 付きのみ wav を保存。テキスト依存性を排除するため
+                    # 常に canonical(texts[0]) を保存（後から re-listen 時に一貫した比較が可能）。
                     if ans in TAG_KEEP_WAV or note:
                         wav_path = out_dir / f"seed_{seed:03d}.wav"
-                        write_wav(str(wav_path), audio, 48000)
+                        write_wav(str(wav_path), audio_canonical, 48000)
                         saved_wav = True
                     append_rating(ratings_path, seed, ans, note)
                     flag = " +wav" if saved_wav else ""
