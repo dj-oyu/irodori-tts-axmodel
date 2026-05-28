@@ -1,0 +1,36 @@
+[Unit]
+# Irodori TTS 全段 NPU ワンショット合成サービス。
+# NPU は排他リソースのため:
+#   - ExecStartPre で競合サービス(axllm-serve@*, ax-yolo-daemon, pet-album)を停止
+#   - ExecStart で run_npu_full.py を実行
+#   - ExecStopPost で必ずサービスを復帰（成功/失敗/SIGKILL すべてで実行 → bash trap EXIT
+#     では取れない SIGKILL でも放置回避）。
+# ユニット名は `ai-pyramid*` パターンに合わせ、既存 NOPASSWD ルールで `sudo -n systemctl start ai-pyramid-tts`
+# が password 無し起動可能（追加 sudoers 設定不要）。
+Description=Irodori TTS (one-shot, NPU exclusive, SIGKILL-safe)
+After=ax-proc-perms.service
+
+[Service]
+Type=oneshot
+TimeoutStartSec=180
+
+# install-time 置換: @REPO@ = リポジトリの絶対パス, @PYSITE@ = user の site-packages
+Environment=REPO=@REPO@
+Environment=PYSITE=@PYSITE@
+
+# 引数は wrapper(/usr/local/bin/irodori-tts)が /tmp/ai-pyramid-tts/request.env に書き、
+# unit の EnvironmentFile= で env に取り込む。同時起動は systemd の oneshot semantics で直列化
+# (2回目の start は active 中なら待機 or 失敗)。
+EnvironmentFile=/tmp/ai-pyramid-tts/request.env
+
+ExecStartPre=/usr/local/lib/ai-pyramid-tts/stop-npu.sh
+ExecStart=/usr/local/lib/ai-pyramid-tts/synth.sh
+# 注意: ExecStopPost は ExecStart の成否に関わらず実行される（SIGKILL でも）。これが
+# bash trap EXIT に対する systemd の優位性 = 排他リソース運用の堅さの源。
+ExecStopPost=/usr/local/lib/ai-pyramid-tts/restart-npu.sh
+
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

@@ -1,38 +1,56 @@
 #!/usr/bin/env bash
-# irodori-tts — production text→wav CLI（voice catalog 経由 + NPU パイプライン）。
+# irodori-tts — production text→wav CLI（voice catalog + systemd ai-pyramid-tts.service）。
 #
 # 設計: voice = f(seed, text) で text 依存 character shift がある（同 seed でも text で
 # 男女・声質が変動）ため、user 向け抽象は seed-anchored "voice A/B" ではなく gender pool。
 #   --voice female  → female pool から毎回 random.choice → 自然な揺らぎ
 #   --voice male    → male pool   〃
 #   --seed N        → 直指定（escape hatch、再現性が必要な時）
-# pool 自体は voice_scout.py のタグから curate して voices.json に保存される。
+# pool は voice_scout.py のタグから curate して voices.json (catalog) に保存。
 #
-# 中身は deploy/tts.sh（NPU 排他 + 全段 NPU 合成）に delegate する thin wrapper。
+# systemd ai-pyramid-tts.service（Type=oneshot, ExecStopPost で SIGKILL 安全）に
+# request を投げる thin wrapper。 sudo -n systemctl start は ai-pyramid* の NOPASSWD
+# ルールで password 無し起動可能。
 #
 # 使い方:
 #   irodori-tts "こんにちは"
 #   irodori-tts "こんにちは" --voice male
 #   irodori-tts "こんにちは" --voice female -o /tmp/out.wav
-#   irodori-tts "こんにちは" --seed 42 -o - | aplay   # 直指定 seed + stdout パイプ
+#   irodori-tts "こんにちは" --seed 42 -o - | aplay   # 直指定 + stdout
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# catalog 検索: env > 同階層 > インストール先（Phase 1 完成時）
+# catalog 検索: env > 同階層 > インストール先
 CATALOG="${IRODORI_VOICES:-}"
 [ -z "$CATALOG" ] && [ -f "$SCRIPT_DIR/voices.json" ] && CATALOG="$SCRIPT_DIR/voices.json"
 [ -z "$CATALOG" ] && [ -f "/usr/local/lib/ai-pyramid-tts/voices.json" ] && CATALOG="/usr/local/lib/ai-pyramid-tts/voices.json"
 [ -f "${CATALOG:-/nonexistent}" ] || { echo "error: voices.json が見つからない (set IRODORI_VOICES)" >&2; exit 1; }
 
-# default voice は catalog の _default を読み、無ければ female
+# systemd unit 存在チェック（install.sh 済みであることが前提）
+UNIT=/etc/systemd/system/ai-pyramid-tts.service
+WORKDIR=/tmp/ai-pyramid-tts
+[ -f "$UNIT" ] || {
+  echo "error: $UNIT が無い。先に `sudo $SCRIPT_DIR/install.sh` を実行してください" >&2
+  echo "       (dev 用に直接 deploy/tts.sh \"テキスト\" でも合成可能)" >&2
+  exit 1
+}
+[ -d "$WORKDIR" ] || { echo "error: $WORKDIR が無い (install.sh 未実行?)" >&2; exit 1; }
+
+# 既定 voice
 DEFAULT_VOICE=$(/usr/bin/python3.10 -c "import json;print(json.load(open('$CATALOG')).get('_default','female'))")
+
 VOICE="$DEFAULT_VOICE"
 SEED=""
 TEXT=""
-EXTRA=()
+OUT="/tmp/tts.wav"   # 既定出力（kokoro-tts と同じ位置）
+PLAY=0
+STEPS=16
+T_VALID=0
+T_VALID_CAP=0
+DURATION_SCALE=1.0
 
 usage() {
-  sed -n '2,17p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
+  sed -n '2,21p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
   echo
   echo "available voices in $CATALOG:"
   /usr/bin/python3.10 -c "
@@ -49,12 +67,12 @@ while [[ $# -gt 0 ]]; do
   case "$1" in
     --voice)            VOICE="$2"; shift 2 ;;
     --seed)             SEED="$2"; shift 2 ;;
-    -o|--out|--output)  EXTRA+=("-o" "$2"); shift 2 ;;
-    --play)             EXTRA+=("--play"); shift ;;
-    --steps)            EXTRA+=("--steps" "$2"); shift 2 ;;
-    --t-valid)          EXTRA+=("--t-valid" "$2"); shift 2 ;;
-    --duration-scale)   EXTRA+=("--duration-scale" "$2"); shift 2 ;;
-    --keep-services)    EXTRA+=("--keep-services"); shift ;;
+    -o|--out|--output)  OUT="$2"; shift 2 ;;
+    --play)             PLAY=1; shift ;;
+    --steps)            STEPS="$2"; shift 2 ;;
+    --t-valid)          T_VALID="$2"; shift 2 ;;
+    --t-valid-cap-frames|--cap) T_VALID_CAP="$2"; shift 2 ;;
+    --duration-scale)   DURATION_SCALE="$2"; shift 2 ;;
     -h|--help)          usage 0 ;;
     -*)                 echo "unknown option: $1" >&2; usage 1 ;;
     *)                  TEXT="$1"; shift ;;
@@ -77,4 +95,42 @@ else
   echo "[voice] --seed $SEED (直指定, catalog 無視)" >&2
 fi
 
-exec "$SCRIPT_DIR/tts.sh" "$TEXT" --seed "$SEED" "${EXTRA[@]}"
+# 同時起動防止: user-side flock + systemd の oneshot semantics の2段で直列化
+LOCK=/tmp/ai-pyramid-tts.lock
+exec 200>"$LOCK"
+flock -w 600 200 || { echo "error: 別の irodori-tts が動作中（10分待っても取れず）" >&2; exit 1; }
+
+# request を投げる: TEXT は raw file、数値は env file
+printf '%s' "$TEXT" > "$WORKDIR/text.in"
+cat > "$WORKDIR/request.env" <<EOF
+SEED=$SEED
+STEPS=$STEPS
+T_VALID=$T_VALID
+T_VALID_CAP_FRAMES=$T_VALID_CAP
+DURATION_SCALE=$DURATION_SCALE
+EOF
+
+echo "[tts] text=${TEXT@Q} seed=$SEED steps=$STEPS t-valid=$T_VALID -> $OUT" >&2
+
+# systemctl start は Type=oneshot なので completion まで blocking
+if ! sudo -n systemctl start ai-pyramid-tts.service; then
+  echo "error: ai-pyramid-tts.service failed" >&2
+  sudo -n systemctl status ai-pyramid-tts.service --no-pager 2>&1 | tail -20 || true
+  exit 1
+fi
+
+# result.wav を user 出力先へ
+RESULT=$WORKDIR/result.wav
+[ -f "$RESULT" ] || { echo "error: $RESULT が生成されていない" >&2; exit 1; }
+
+if [ "$OUT" = "-" ]; then
+  cat "$RESULT"
+  echo "[done] -> stdout" >&2
+else
+  cp "$RESULT" "$OUT"
+  if [ $PLAY -eq 1 ]; then
+    echo "[play] $OUT" >&2
+    aplay -D plughw:0,0 "$OUT" 2>/dev/null || aplay "$OUT" 2>/dev/null || true
+  fi
+  echo "[done] $OUT" >&2
+fi
