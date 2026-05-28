@@ -3,8 +3,10 @@
 **v0.3 (2026-05-26)** — 全段NPU・safetensorsレス版
 
 Irodori-TTS-500M-v3 を AX8850 NPU で **text→wav 全段 NPU** で動かすデプロイ手順。
-条件付け(cond)・DiT・DACVAE を全て `.axmodel` 化済みで、実行時に **torch モデル / model.safetensors は不要**
-（tokenizer のみ torch lib を import）。実機（AX8850）で検証済み。
+条件付け(cond)・DiT・DACVAE を全て `.axmodel` 化済みで、実行時に
+**torch / transformers / irodori_tts / model.safetensors いずれも不要**
+（tokenizer は HF `tokenizers`(Rust) で `tokenizer.json` を直読み、テキスト正規化は stdlib のみ）。
+cold tokenize ~2s（torch 経路の ~15s から短縮）。実機（AX8850）で検証済み。
 
 > **v0.2 からの変更**: v0.2 は「DACVAE は NPU 不可・CPU 据え置き」「条件付けは torch CPU」という
 > 別アーキだった。現在は **条件付け(cond①) も DACVAE も NPU 化済み**で全段 NPU が成立している
@@ -31,7 +33,7 @@ text ─[CPU] 正規化 + tokenizer
 
 | 段 | 実行先 | axmodel | 備考 |
 |---|---|---|---|
-| 正規化 / tokenizer | CPU | — | torch lib import（2GBモデルは読まない）|
+| 正規化 / tokenizer | CPU | — | stdlib(`re`,`unicodedata`) + `tokenizers`(Rust) のみ。torch 不要 |
 | **① 条件付け + duration** | **NPU** | `axmodel_cond_textkv_dur` | `input_ids,mask → 24 text-KV + token_logits` |
 | **② DiT 1-step (×N)** | **NPU** | `axmodel_kv_long_lm_allfcu16_npu3` | 支配的。triple-core ~56ms/call |
 | RF Euler 更新 / schedule / CFG / softplus duration | CPU | — | 制御ロジック（軽い）|
@@ -48,12 +50,13 @@ text ─[CPU] 正規化 + tokenizer
 
 - **AI Pyramid Pro (AX8850)** — octa Cortex-A55 + 24 TOPS NPU、8GB LPDDR4x（system ~2GB / CMM 6GB）。
 - **PyAXEngine**（axengine 0.1.3）。root 実行のため、PYTHONPATH で user の site-packages を明示する必要あり。
-- `irodori_tts` **パッケージ**（~384KB, tokenizer/text正規化/ModelConfig のため）+ aarch64 torch（CPU）。
+- `tokenizers`(Rust, HF) + `huggingface_hub` — `tokenizer.json` を直読み（torch/transformers/irodori_tts 経路不要）。
+  - tokenizer は別repo [`llm-jp/llm-jp-3-150m`](https://huggingface.co/llm-jp/llm-jp-3-150m)（HFキャッシュ ~6MB,
+    tokenizerファイルのみ）。`bos_token_id` は `special_tokens_map.json` から動的解決する（ハードコードなし）。
   - **`model.safetensors`(~2GB) は実行時不要** — 全段NPUは重みを一切ロードしない（検証済）。
-    ストレージ削減のため削除してよい（A/B検証 `dur_fp32_probe.py`/`slim_stageA.py` を回す時だけ要再DL）。
-  - tokenizer は別repo `llm-jp/llm-jp-3-150m`（HFキャッシュ ~6MB、tokenizerファイルのみ）。`IRODORI_TTS_HOME` は
-    この `irodori_tts` パッケージを指す（PYTHONPATH）。重みのパスではない。
-- 依存: torch 2.10.0+cpu / onnxruntime 1.23.2 / onnx 1.21.0 / axengine 0.1.3。
+    A/B検証 `dur_fp32_probe.py`/`slim_stageA.py` を回す時だけ要再DL。
+- 依存（runtime）: axengine 0.1.3 / numpy / tokenizers / huggingface_hub。
+  依存（A/B検証時のみ）: torch 2.10.0+cpu / onnxruntime 1.23.2 / onnx 1.21.0。
 
 参考: [AI Pyramid-Pro (m5-docs)](https://docs.m5stack.com/en/ai_hardware/AI_Pyramid-Pro) /
 [PyAXEngine](https://github.com/AXERA-TECH/pyaxengine)
@@ -89,7 +92,6 @@ scp -r buildhost:.../build/axmodel_dacvae_T201              build/
 （cold ~23s。**常駐ではない**＝kokoro-tts 置き換え用途ではなく単発合成）。
 
 ```bash
-export IRODORI_TTS_HOME=$HOME/github/Irodori-TTS    # irodori_tts のパス（必須・デバイス固有）
 deploy/tts.sh "今日はとても良い天気ですね。" -o /tmp/out.wav --play
 deploy/tts.sh "テキスト" --seed 3 --steps 16 --t-valid 70
 deploy/tts.sh "テキスト" -o - | aplay               # wav を stdout に流して直接パイプ
@@ -105,9 +107,9 @@ deploy/tts.sh "テキスト" -o - | aplay               # wav を stdout に流�
 | `--duration-scale` | 1.0 | A3予測フレームの倍率 |
 | `--play` | off | 合成後 `aplay` で再生 |
 | `--keep-services` | off | サービスを停止しない（NPU が空いている前提）|
-| `IRODORI_TTS_HOME` | （必須）| `irodori_tts` の場所 → PYTHONPATH |
-| `IRODORI_PYSITE` | `$HOME/.local/lib/python3.10/site-packages` | axengine の場所（root から見えないため明示）|
-| `IRODORI_AXLLM_UNIT` | 実行中インスタンスを動的解決 | axllm は templated unit `axllm-serve@<model>.service`。モデル名はデバイス固有 |
+| `IRODORI_PYSITE` | `$HOME/.local/lib/python3.10/site-packages` | axengine / tokenizers / huggingface_hub の場所（root から見えないため明示）|
+| `IRODORI_AXLLM_UNIT` | 実行中インスタンスを動的解決 | axllm は templated unit `axllm-serve@<model>.service`。モデル名はデバイス固有（§7 参照）|
+| `IRODORI_TTS_HOME` | （任意・通常不要）| 後方互換のみ。set されていれば PYTHONPATH 先頭に前置（旧 torch 経路用、現 runtime では未使用）|
 | `IRODORI_SERVICES` | `pet-album ax-yolo-daemon <axllm>` | 停止する NPU 排他サービス |
 | `IRODORI_RESTART` | `<axllm> ax-yolo-daemon pet-album` | 復帰順（yolo の ExecStartPre が axllm:8000 待ち→axllm先）|
 
@@ -145,6 +147,14 @@ deploy/tts.sh "テキスト" -o - | aplay               # wav を stdout に流�
 ### 🟡 長さ上限 T_max=201（~8s）
 それ以上はチャンク分割が必要（未実装）。
 
+### 🟦 NPU 排他の堅牢化（systemd Type=oneshot 設計案・未実装）
+現 `deploy/tts.sh` は bash `trap EXIT` でサービス復帰するが、**SIGKILL（OOM 等）を捕捉できず**
+停止状態で放置されるリスクと、**排他ロック無しのため複数起動で SEGV** するリスクがある。
+
+設計案: `tts.sh` を合成専用に分離し、`systemd-run --wait --collect --unit=irodori-tts ...`
+（systemd 249+, 利用可）で NPU 調停。`Type=oneshot`（常駐せず）+ `ExecStopPost`（kill時も復帰保証）+
+名前付きunit（同時起動を直列化）。対話利用なら現状で実用上問題なく、本格運用化（常駐 or バッチ）時に着手する。
+
 ### 参考（健全な部分）
 - 条件付けの量子化は**聴感等価**（full-tensor cosine 0.16 は masked-padded ±32 飽和由来の誤導値。
   valid 領域 cos 0.77 + 実聴で等価）。判定は valid 領域 or 実聴で行う。
@@ -166,9 +176,10 @@ deploy/tts.sh "テキスト" -o - | aplay               # wav を stdout に流�
 
 | 症状 | 原因 / 対処 |
 |---|---|
-| `No module named 'axengine'` | root から user site が見えない → `IRODORI_PYSITE` を確認 |
+| `No module named 'axengine'` / `tokenizers` | root から user site が見えない → `IRODORI_PYSITE` を確認 |
 | `sudo: a password is required` | `sudo -n` が NOPASSWD にマッチせず。`env` を挟むと不可、`sudo -n PYTHONPATH=... python` 形 |
 | `missing: build/axmodel_*` | gitignore バイナリ未転送（§3）|
-| SEGV | NPU 排他違反（2プロセス同時）。`--keep-services` を外してサービス停止させる |
+| **SEGV（VLM 稼働中に TTS）** | axllm は **templated unit `axllm-serve@<model>.service`** で、`systemctl stop axllm` は no-op になり NPU 排他違反→SEGV。`tts.sh` は実行中インスタンスを `systemctl list-units 'axllm-serve@*.service'` で動的解決済。手動で stop する場合も同じ手順で |
+| SEGV（その他）| NPU 排他違反（2プロセス同時）。`--keep-services` を外してサービス停止させる |
 | 短文で末尾/冒頭ノイズ | duration head 欠陥（§5）。`--t-valid` 手動指定 |
 | 音が出ない | `amixer sset 'DAC VOLUME' 55%`、`aplay -D plughw:0,0`（内蔵 ES8311 = card0）|

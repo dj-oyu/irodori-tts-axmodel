@@ -6,8 +6,8 @@
 日本語 TTS）を **Axera AX8850 / M5Stack AI Pyramid Pro** の NPU で動かすための変換・前処理・デプロイツール群。
 
 条件付け(cond)・DiT denoiser・DACVAE vocoder の3コンポーネントを全て `.axmodel` 化し、
-**text→wav を全段 NPU で実行**（実行時に torch モデル / model.safetensors 不要、tokenizer のみ）。
-AX8850 実機で検証済み。
+**text→wav を全段 NPU で実行**（実行時 **torch / transformers / irodori_tts 不要**、
+tokenizer は `tokenizers`(Rust) を直接利用）。AX8850 実機で検証済み。
 
 > ⚠️ 本リポジトリは**変換パイプライン・スクリプト・デプロイ**を管理する。
 > 巨大な生成物（`.onnx` / `.axmodel` / calibration / wav / `.venv` / `.npz`）は
@@ -43,7 +43,6 @@ AX8850 実機で検証済み。
 全段 NPU のワンショット text→wav。詳細は [`docs/deploy_ai_pyramid_pro.md`](docs/deploy_ai_pyramid_pro.md)。
 
 ```bash
-export IRODORI_TTS_HOME=$HOME/github/Irodori-TTS    # irodori_tts のパス（デバイス固有）
 deploy/tts.sh "今日はとても良い天気ですね。" -o /tmp/out.wav --play
 ```
 
