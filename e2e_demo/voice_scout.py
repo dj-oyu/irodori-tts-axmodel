@@ -278,6 +278,8 @@ def main() -> int:
     print(f"[scout] {len(texts)} text(s): {texts[0]!r}"
           + (f" (+{len(texts)-1} more, `g` でローテート)" if len(texts) > 1 else "")
           + f" steps={args.num_steps} out_dir={out_dir} ratings={ratings_path}", file=sys.stderr)
+    # キー一覧は最初に 1 回だけ案内。以降の prompt は短くする（`?` でいつでも再表示）
+    print(f"[keys] {TAG_HELP}", file=sys.stderr)
 
     pipeline = Pipeline(args.cond, args.dit, args.dacvae, args.constants)
     params = dict(num_steps=args.num_steps, t_valid=args.t_valid,
@@ -317,15 +319,16 @@ def main() -> int:
             text_idx = 0
             while True:
                 play_audio(audio)
+                # prompt は短く「今聴いた seed/text」だけ。help は ? で出す。
+                prompt = f"seed={seed:3d} text[{text_idx+1}/{len(texts)}] > "
                 try:
-                    ans = input(f"tag {TAG_HELP}: ").strip().lower()
+                    ans = input(prompt).strip().lower()
                 except EOFError:
                     quit_now = True; break
                 if not ans:
                     continue
                 if ans == "?":
-                    print("  m=男 f=女 c=子供 e=高齢 k=keep s=skip r=replay g=次のテキスト n=note q=quit",
-                          file=sys.stderr); continue
+                    print(f"  {TAG_HELP}", file=sys.stderr); continue
                 if ans == "r":
                     continue  # play 先頭に戻る（同じ audio をメモリから再生）
                 if ans == "g":
@@ -334,10 +337,13 @@ def main() -> int:
                               file=sys.stderr); continue
                     text_idx = (text_idx + 1) % len(texts)
                     nxt = texts[text_idx]
-                    print(f"  → text[{text_idx+1}/{len(texts)}]={nxt!r} (synth中...)",
+                    print(f"  → seed={seed} text[{text_idx+1}/{len(texts)}]={nxt!r} synth...",
                           file=sys.stderr, flush=True)
                     with synth_lock:
                         audio, tv = pipeline.synthesize(nxt, seed=seed, **params)
+                    print(f"  ✓ seed={seed} text[{text_idx+1}/{len(texts)}] "
+                          f"t_valid={tv} amp±{float(np.abs(audio).max()):.3f}",
+                          file=sys.stderr)
                     continue  # play 先頭に戻り新音声を再生
                 if ans == "n":
                     try:
