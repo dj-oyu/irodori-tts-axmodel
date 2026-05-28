@@ -13,6 +13,9 @@ After=ax-proc-perms.service
 [Service]
 Type=oneshot
 TimeoutStartSec=180
+# ExecStopPost が systemctl start --no-block で fire-and-forget なので本来短くて済むが、
+# 念のため device default (5s 程度?) より長めに明示。
+TimeoutStopSec=60
 
 # install-time 置換: @REPO@ = リポジトリの絶対パス, @PYSITE@ = user の site-packages
 Environment=REPO=@REPO@
