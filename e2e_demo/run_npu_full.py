@@ -107,6 +107,9 @@ def main():
     ap.add_argument("--t-valid", type=int, default=0,
                     help="0 = A3自動(token_logits から duration予測); >0 で手動上書き")
     ap.add_argument("--duration-scale", type=float, default=1.0)
+    ap.add_argument("--t-valid-cap-frames", type=int, default=0,
+                    help="A3自動予測の上限クリップ(frames, 25fps相当)。0=無効。"
+                         "duration head 過大予測の保険。手動 --t-valid 指定時は無視")
     ap.add_argument("--keep-bos-frames", action="store_true",
                     help="include BOS token frames in A3 duration (default: exclude — BOS over-predicts)")
     ap.add_argument("--min-sec", type=float, default=0.3)
@@ -163,7 +166,13 @@ def main():
         max_f = min(T, max(1, math.floor(args.max_sec * args.sr / args.hop)))
         t_valid = int(round(pred_frames * args.duration_scale))
         t_valid = max(min_f, min(max_f, t_valid))
-        print(f"[A3] predicted frames={pred_frames:.1f} scale={args.duration_scale} "
+        capped = False
+        if args.t_valid_cap_frames > 0 and t_valid > args.t_valid_cap_frames:
+            t_valid = max(min_f, args.t_valid_cap_frames)
+            capped = True
+        cap_msg = f" cap={args.t_valid_cap_frames}(applied)" if capped else \
+                  (f" cap={args.t_valid_cap_frames}(slack)" if args.t_valid_cap_frames > 0 else "")
+        print(f"[A3] predicted frames={pred_frames:.1f} scale={args.duration_scale}{cap_msg} "
               f"-> t_valid={t_valid} ({t_valid*args.hop/args.sr:.2f}s)", flush=True)
     else:
         t_valid = min(119, T)

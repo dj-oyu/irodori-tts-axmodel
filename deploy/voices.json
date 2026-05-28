@@ -1,0 +1,8 @@
+{
+  "_comment": "Voice catalog — seed pool by gender. CLI が --voice <name> 受け取って random.choice。`voice_scout.py` の ratings.csv から最新タグ優先で curate (2026-05-29, 107 seeds 走査; f=9 m=6 skip=92)。voice = f(seed, text) で text 依存 character shift があるため seed-anchored 名付け catalog ではなく gender pool 設計。",
+  "_curated_at": "2026-05-29",
+  "_source": "/tmp/voice_scout/ratings.csv (latest-write-wins)",
+  "female": [3, 21, 40, 55, 79, 85, 91, 96, 100],
+  "male": [7, 12, 30, 52, 97, 98],
+  "_default": "female"
+}
